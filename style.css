@@ -1,0 +1,26 @@
+#pontuacao{
+    display: grid;
+    grid-template-columns: repeat(50, 1fr);
+    grid-template-rows: 1fr;
+    border: 1px solid green;
+    width: 500px;
+    height: 100px;
+    
+    margin: 0 auto;
+}
+#gameover{
+    display: grid;
+    grid-template-columns: repeat(50, 1fr);
+    grid-template-rows: 1fr;
+    width: 500px;
+    height: 100px;
+    border: 1px solid green;
+    
+    margin: 0 auto;
+}
+.checkedwin{
+    background-color: greenyellow;
+}
+.checkedlose{
+    background-color: red;
+}
