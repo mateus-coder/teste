@@ -67,13 +67,13 @@ function funcaoGame(){
 					}
 					break;
 				case 1:
-					var paredeSprite = new Sprite(50,112,25,50,25*y,parede[x][y]);
+					var paredeSprite = new SpriteDynamic(50,112,25,50,25*y,parede[x][y]);
 					sprites.push(paredeSprite);
 					paredes.push(paredeSprite);
 					cenario.push(paredeSprite);
 					break;
 				case 2:
-					var muroSprite = new Sprite(0,137,50,25,muro[x][y], 25*x);
+					var muroSprite = new SpriteDynamic(0,137,50,25,muro[x][y], 25*x);
 					sprites.push(muroSprite);
 					muros.push(muroSprite);
 					cenario.push(muroSprite);
@@ -111,6 +111,10 @@ function funcaoGame(){
 	//estados do jogo
 	var LOADING = 0, PLAYING = 1, PAUSED = 2, OVER = 3;
 	var gameState = LOADING;
+
+	//variáveis de contadores que marcam o tempo de delay certa quantidade de frames 
+	const contadorDeTempo = 60;
+	var delayMudancaDeCor = 0;
 	
 	//listeners
 	window.addEventListener('keydown',function(e){
@@ -185,9 +189,21 @@ function funcaoGame(){
 			gameState = PAUSED;
 		}
 	}
+	const setNewPosition = (sprite) => {
+		sprite.sourceX += 50;
+	}
+
+	const ChangeBackground = () => {
+		delayMudancaDeCor = 0;
+		for(var i in sprites){
+			var sprite = sprites[i];
+			sprite.type === "DYNAMICBACKGROUND" ? setNewPosition(sprite) : delayMudancaDeCor++;
+		}
+	}
 	
 	function loop(){
 		requestAnimationFrame(loop, cnv);
+		contadorDeTempo === delayMudancaDeCor ? ChangeBackground() : delayMudancaDeCor++;
 		//define as ações com base no estado do jogo
 		switch(gameState){
 			case LOADING:

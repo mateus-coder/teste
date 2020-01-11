@@ -8,6 +8,7 @@ var Sprite = function(sourceX,sourceY,width,height,x,y){
 	this.vx = 5;
 	this.vy = 0;
 	this.status = "VISIBLE";
+	this.type = "STATIC";
 }
 
 Sprite.prototype.centerX = function(){
@@ -25,8 +26,9 @@ Sprite.prototype.halfWidth = function(){
 Sprite.prototype.halfHeight = function(){
 	return this.height/2;
 }
-
+//classe alien(inimigo);
 var Alien = function(sourceX,sourceY,width,height,x,y){
+	//comando que significa que eu estou passando para esta classe as variáveis de instância da classe Sprite
 	Sprite.call(this, sourceX,sourceY,width,height,x,y);
 	this.NORMAL = 1;
 	this.EXPLODED = 2;
@@ -34,7 +36,7 @@ var Alien = function(sourceX,sourceY,width,height,x,y){
 	this.state = this.NORMAL;
 	this.mvStyle = this.NORMAL;
 }
-
+//passando todos os métodos da classe Sprite para esta classe
 Alien.prototype = Object.create(Sprite.prototype);
 
 Alien.prototype.explode = function(){
@@ -42,4 +44,13 @@ Alien.prototype.explode = function(){
 	this.width = 70;
 	this.height = 55;
 }
+
+//classe muro
+
+var SpriteDynamic = (sourceX ,sourceY ,width ,height ,x ,y) => {
+	Sprite.call( this, sourceX ,sourceY ,width ,height ,x ,y );
+	this.type = "DYNAMICBACKGROUND";
+}
+SpriteDynamic.prototype = Object.create(Sprite.prototype);
+
 
