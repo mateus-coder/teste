@@ -47,9 +47,10 @@ Alien.prototype.explode = function(){
 
 //classe muro
 
-var SpriteDynamic = (sourceX ,sourceY ,width ,height ,x ,y) => {
+var SpriteDynamic =  function(sourceX ,sourceY ,width ,height ,x ,y) {
 	Sprite.call( this, sourceX ,sourceY ,width ,height ,x ,y );
 	this.type = "DYNAMICBACKGROUND";
+	this.moreOrLess = 1;
 }
 SpriteDynamic.prototype = Object.create(Sprite.prototype);
 

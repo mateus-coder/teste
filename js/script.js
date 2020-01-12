@@ -67,13 +67,13 @@ function funcaoGame(){
 					}
 					break;
 				case 1:
-					var paredeSprite = new SpriteDynamic(50,112,25,50,25*y,parede[x][y]);
+					var paredeSprite = new SpriteDynamic(500,112,25,50,25*y,parede[x][y]);
 					sprites.push(paredeSprite);
 					paredes.push(paredeSprite);
 					cenario.push(paredeSprite);
 					break;
 				case 2:
-					var muroSprite = new SpriteDynamic(0,137,50,25,muro[x][y], 25*x);
+					var muroSprite = new SpriteDynamic(450,137,50,25,muro[x][y], 25*x);
 					sprites.push(muroSprite);
 					muros.push(muroSprite);
 					cenario.push(muroSprite);
@@ -190,8 +190,11 @@ function funcaoGame(){
 		}
 	}
 	const setNewPosition = (sprite) => {
-		sprite.sourceX += 50;
+		sprite.sourceX >= 825 ? sprite.moreOrLess = -1 : sprite.sourceX <= 525 ? sprite.moreOrLess = 1 : sprite.moreOrLess = sprite.moreOrLess;
+
+		sprite.sourceX += (75 * sprite.moreOrLess);
 	}
+	
 
 	const ChangeBackground = () => {
 		delayMudancaDeCor = 0;
