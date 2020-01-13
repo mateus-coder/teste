@@ -28,19 +28,14 @@ function funcaoGame(){
 	var tiposDeObstaculosY = [100, 70, 60];
 	var coresObstaculosX = [0, 200, 400];
 	var obstaculosInit = [450, 420, 400];
-	
-	//array de misseis
-	var misseis = [];
-	//aliens
-	var aliens = [];
-	//
+	var tiposDeInimigosSourceY = [212,       312,      362 ];
+	//----------------------------sanduíche--pizza-----bolo------
+	var posicoesIniciaisInimigosY = [350,    200,      350];
+	var posicoesIniciaisInimigosX = [280,    280,      60];
 	var frutas = [];
 	var muros = [];
 	var paredes = [];
-	var inimigostp1 = [];
-	var inimigostp2 = [];
-	var inimigostp3 = [];
-	var inimigostp4 = [];
+	var inimigos = [];
 	var cenario = [];
 	
 	//variáveis úteis
@@ -82,12 +77,14 @@ function funcaoGame(){
 		}
 	}
     //personagem
-    var char = new Sprite(222,50,62,108,180,400);
+    var char = new Sprite(500,162,50,50,180,400);
 	sprites.push(char);
 	//inimigos
-	var inimigoType1 = new Sprite(109,112,50,50,280,350);
-	sprites.push(inimigoType1);
-	inimigostp1.push(inimigoType1);
+	for(var ç = 0; ç < 3; ç++){
+		var inimigo = new Sprite(750,tiposDeInimigosSourceY[ç],50,50,posicoesIniciaisInimigosX[ç],posicoesIniciaisInimigosY[ç]);
+		sprites.push(inimigo);
+		inimigos.push(inimigo);
+	}
 	//obstaculos
 	//var obstaculos = new Sprite(0, 0, 100, 200, 380, 298);
 	//sprites.push(obstaculos);
@@ -100,12 +97,10 @@ function funcaoGame(){
 	//contador de recursos
 	var loadedAssets = 0;
 	
-	
+	//ações
+	var mvLeft = mvRight = mvTop = mvDown = false;	
 	//entradas
 	var LEFT = 37, RIGHT = 39, ENTER = 13, SPACE = 32, CIMA = 38, BAIXO = 40;
-	
-	//ações
-	var mvLeft = mvRight = mvTop = mvDown = false;
 	
 	
 	//estados do jogo
@@ -122,55 +117,58 @@ function funcaoGame(){
 		
 		switch(key){
 			case LEFT:
-				mvTop = false;
-				mvLeft = true;
-				mvDown = false;
-				mvRight = false;
+				mvLeft = mvDown = mvTop = mvRight = false;
 				break;
 			case RIGHT:
-				mvTop = false;
-				mvLeft = false;
-				mvDown = false;
-				mvRight = true;
+				mvLeft = mvDown = mvTop = mvRight = false;
 				break;
 			case BAIXO:
-				mvTop = false;
-				mvLeft = false;
-				mvDown = true;
-				mvRight = false;
+				mvLeft = mvDown = mvTop = mvRight = false;
 				break;
 			case CIMA:
-				mvTop = true;
-				mvLeft = false;
-				mvDown = false;
-				mvRight = false;
+				mvLeft = mvDown = mvTop = mvRight = false;
 				break;
 		}
 	},false);
 	
 	window.addEventListener('keyup',function(e){
 		var key = e.keyCode;
-		switch(key){
-			case LEFT:
-				mvLeft = true;
-				break;
-			case RIGHT:
-				mvRight = true;
-				break;
-			case ENTER:
-				if(gameState !== PLAYING){
-					gameState = PLAYING;
-				} else {
-					gameState = PAUSED;
-				}
-				break;
-			case BAIXO:
-				mvDown = true;
-				break;
-			case CIMA:
-				mvTop = true;
-				break;
-		}
+			switch(key){
+				case LEFT:
+					mvLeft = true;
+					mvDown = false;
+					mvTop = false;
+					mvRight = false;
+					
+					break;
+				case RIGHT:
+					mvLeft = false;
+					mvDown = false;
+					mvTop = false;
+					mvRight = true;
+					
+					break;
+				case BAIXO:
+					mvLeft = false;
+					mvDown = true;
+					mvTop = false;
+					mvRight = false;
+					break;
+				case CIMA:
+					mvLeft = false;
+					mvDown = false;
+					mvTop = true;
+					mvRight = false;
+					break;
+				case ENTER:
+					if(gameState !== PLAYING){
+						gameState = PLAYING;
+					} else {
+						gameState = PAUSED;
+					}
+					break;
+			}
+		
 	},false);
 	
 	
@@ -189,20 +187,101 @@ function funcaoGame(){
 			gameState = PAUSED;
 		}
 	}
-	const setNewPosition = (sprite) => {
+	setNewPosition = (sprite) => {
 		sprite.sourceX >= 825 ? sprite.moreOrLess = -1 : sprite.sourceX <= 525 ? sprite.moreOrLess = 1 : sprite.moreOrLess = sprite.moreOrLess;
 
 		sprite.sourceX += (75 * sprite.moreOrLess);
 	}
-	
-
-	const ChangeBackground = () => {
+	setSource = (obj, value) => {
+		obj.sourceX = value;
+	}
+	ChangeBackground = () => {
 		delayMudancaDeCor = 0;
 		for(var i in sprites){
 			var sprite = sprites[i];
 			sprite.type === "DYNAMICBACKGROUND" ? setNewPosition(sprite) : delayMudancaDeCor++;
 		}
 	}
+	leaveBorder = (inimigoType1) => {
+		//condição se o inimigo sair da borda ele retornar na outra extremidade
+		if(inimigoType1.x > cnv.width - inimigoType1.width){
+			inimigoType1.x = 0;
+		}
+		if(inimigoType1.x < 0){
+			inimigoType1.x = cnv.width - inimigoType1.width;
+		}
+		if(inimigoType1.y > cnv.height - inimigoType1.height){
+			inimigoType1.y = 0;
+		}
+		if(inimigoType1.y < 0 ){
+			inimigoType1.y = cnv.height - inimigoType1.height;
+		}
+	}
+	
+	collideWall = (inimigoType1) => {
+		for(var i = 0; i < cenario.length; i++){
+			var cenarioEspecifico = cenario[i];
+			if(collide(inimigoType1, cenarioEspecifico)){
+				colisoes += 1;
+				if(colisoes == 1){
+					if(inimigoType1.vx != 0){
+						//dando espaçamento para não bugar na parede
+						if(inimigoType1.vx == 5){
+							inimigoType1.x -= 5; 
+						}
+						if(inimigoType1.vx == -5){
+							inimigoType1.x += 5;
+						}
+						
+						if(Math.floor(Math.random() * 10) > 5){
+							inimigoType1.vy = 5;
+							inimigoType1.vx = 0;
+							setSource(inimigoType1, 850);
+						}//50%
+						else{
+							if(Math.floor(Math.random() * 10) > 5){
+								inimigoType1.vy = -5;
+								inimigoType1.vx = 0;
+								setSource(inimigoType1, 800);
+							}//50%
+							else{
+								inimigoType1.vy = 0;
+								inimigoType1.vx == 5 ? setSource(inimigoType1, 900) : setSource(inimigoType1, 750); 
+								inimigoType1.vx *= -1;
+							}//default caso nenhuma das condições sejam verdadeiras
+						}
+					}
+					else{
+						if(inimigoType1.vy != 0){
+							if(inimigoType1.vy == 5){
+								inimigoType1.y -= 5;
+							}
+							if(inimigoType1.vy == -5){
+								inimigoType1.y += 5;
+							}
+							if(Math.floor(Math.random() * 10 ) > 5){
+								inimigoType1.vy = 0;
+								inimigoType1.vx = 5;
+								setSource(inimigoType1, 750);
+							}//50%
+							else{
+								if(Math.floor(Math.random() * 10) > 5){
+									inimigoType1.vy = 0;
+									inimigoType1.vx = -5;
+									setSource(inimigoType1, 900);
+								}
+								else{
+									inimigoType1.vx = 0;
+									inimigoType1.vy == 5 ? setSource(inimigoType1, 800) : setSource(inimigoType1, 850);
+									inimigoType1.vy = -1 * inimigoType1.vy;	
+								}
+							}
+						} //if vy != de 0
+					} // fim do else do vx != 0
+				}
+			}
+		}//final do for do cenario
+	} 
 	
 	function loop(){
 		requestAnimationFrame(loop, cnv);
@@ -256,12 +335,12 @@ function funcaoGame(){
 			char.vx = 0;
 			char.vy = 5;
 		}
-
-		//para a nave
-		if(!mvLeft && !mvRight && !mvTop && !mvDown){
+		if(!mvDown && !mvLeft && !mvTop && !mvRight){
 			char.vx = 0;
 			char.vy = 0;
 		}
+
+		
 		
 		//atualiza a posição
 		/*move = char.x;
@@ -273,79 +352,14 @@ function funcaoGame(){
 		//atualiza a posição dos inimigos
 		
 		//for para perceber se houve choque entre o inimigo e os muros
-		colisoes = 0;
-		for(var i = 0; i < cenario.length; i++){
-			var cenarioEspecifico = cenario[i];
-			if(collide(inimigoType1, cenarioEspecifico)){
-				colisoes += 1;
-				if(colisoes == 1){
-					if(inimigoType1.vx != 0){
-						//dando espaçamento para não bugar na parede
-						if(inimigoType1.vx == 5){
-							inimigoType1.x = inimigoType1.x -5;
-						}
-						if(inimigoType1.vx == -5){
-							inimigoType1.x = inimigoType1.x +5;
-						}
-						if(Math.floor(Math.random() * 11) > 5){
-							inimigoType1.vy = 0;
 		
-							inimigoType1.vx = inimigoType1.vx * -1;
-						}//30%;
-						else{
-							if(Math.floor(Math.random() * 11) > 5){
-								inimigoType1.vy = 5;
-								inimigoType1.vx = 0;
-								
-							}//30%
-							else{
-								if(Math.floor(Math.random() * 11) > 5){
-									inimigoType1.vy = -5;
-									inimigoType1.vx = 0;
-								}
-								else{
-									inimigoType1.vx = inimigoType1.vx * -1;
-									inimigoType1.vy = 0;
-								}
-							}
-						} //final do else
-					}
-					else{
-						if(inimigoType1.vy != 0){
-							if(inimigoType1.vy == 5){
-								inimigoType1.y = inimigoType1.y -5;
-							}
-							if(inimigoType1.vy == -5){
-								inimigoType1.y = inimigoType1.y +5;
-							}
-							if(Math.floor(Math.random() * 11 ) > 5){
-								inimigoType1.vy = inimigoType1.vy * - 1; 
-								inimigoType1.vx = 0;
-							}
-							else{
-								if(Math.floor(Math.random() * 11) > 5){
-									inimigoType1.vy = 0;
-									inimigoType1.vx = 5;
-								}
-								else{
-									if(Math.floor(Math.random() * 11) > 5){
-										inimigoType1.vy = 0;
-										inimigoType1.vx = -5;
-									}
-									else{
-										inimigoType1.vy = -1 * inimigoType1.vy;
-										inimigoType1.vx = 0;
-									}
-								}
-							} //final do else
-						} //vy != de 0
-					}
-					
-				}
-			}
-		}//final do for do cenario
-		//for para perceber se houve choque entre o inimigo e as paredes
-		console.log(colisoes);
+		for(var z in inimigos){
+			var inimigoType1 = inimigos[z];
+			colisoes = 0;
+			collideWall(inimigoType1);
+			leaveBorder(inimigoType1);
+		}
+		
 		//colisoes char x cenário 
 		colisoes1 = 0;
 		for(var j = 0; j < cenario.length; j++){
@@ -353,38 +367,35 @@ function funcaoGame(){
 			if(collide(char, thisCenario)){
 				colisoes1 += 1;
 				if(colisoes1 == 1){
-					if(char.vy == 5){
-						char.y = char.y -5;
+					mvLeft = mvDown = mvRight = mvTop = false;
+					char.quantCollide += 1;
+					if(char.vy == 5 && char.move !== "DOWN" && char.quantCollide === 1){
+						char.move = "DOWN";
+						char.y -= 5;
 					}
-					if(char.vy == -5){
-						char.y = char.y +5;
+					if(char.vy == -5 && char.move !== "TOP" && char.quantCollide === 1){
+						char.move = "TOP";
+						char.y += 5;
 					}
 
-					if(char.vx == 5){
-						char.x = char.x -5;
+					if(char.vx == 5 && char.move !== "RIGHT" && char.quantCollide === 1){
+						char.move = "RIGHT";
+						char.x -= 5;
 					}
-					if(char.vx == -5){
-						char.x = char.x +5;
+					if(char.vx == -5 && char.move !== "LEFT" && char.quantCollide === 1){
+						char.move = "LEFT";
+						char.x += 5;
 					}
-					mvLeft = mvDown = mvRight = mvTop = false;
+					char.vx = 0;
+					char.vy = 0;
+					
 				}
 			}//fimd o if
 			
-		}//fim do for
+		}//fim do for j
+		colisoes1 === 0 ? char.quantCollide = 0 : char.quantCollide *= 1;
 
-		//condição se o inimigo sair da borda ele retornar na outra extremidade
-		if(inimigoType1.x > cnv.width - inimigoType1.width){
-			inimigoType1.x = 0;
-		}
-		if(inimigoType1.x < 0){
-			inimigoType1.x = cnv.width - inimigoType1.width;
-		}
-		if(inimigoType1.y > cnv.height - inimigoType1.height){
-			inimigoType1.y = 0;
-		}
-		if(inimigoType1.y < 0 ){
-			inimigoType1.y = cnv.height - inimigoType1.height;
-		}
+		
 
 		//verificar se o personagem ultrapassou o limite da arena 
 		if(char.x > cnv.width - char.width){
@@ -403,8 +414,10 @@ function funcaoGame(){
 		char.x += char.vx;
 		char.y += char.vy;
 		//atualiza a posição do inimigo
-		inimigoType1.x += inimigoType1.vx;
-		inimigoType1.y += inimigoType1.vy;
+		for(var n in inimigos){
+			inimigos[n].x += inimigos[n].vx;
+			inimigos[n].y += inimigos[n].vy;
+		}
 
 		//obstaculos.x = obstaculos.x - 7;
 

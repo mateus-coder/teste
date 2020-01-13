@@ -9,6 +9,8 @@ var Sprite = function(sourceX,sourceY,width,height,x,y){
 	this.vy = 0;
 	this.status = "VISIBLE";
 	this.type = "STATIC";
+	this.move = "STOP";
+	this.quantCollide = 0;
 }
 
 Sprite.prototype.centerX = function(){
@@ -51,6 +53,7 @@ var SpriteDynamic =  function(sourceX ,sourceY ,width ,height ,x ,y) {
 	Sprite.call( this, sourceX ,sourceY ,width ,height ,x ,y );
 	this.type = "DYNAMICBACKGROUND";
 	this.moreOrLess = 1;
+	this.animation = false;
 }
 SpriteDynamic.prototype = Object.create(Sprite.prototype);
 
