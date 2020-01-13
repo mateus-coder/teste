@@ -9,8 +9,11 @@ var Sprite = function(sourceX,sourceY,width,height,x,y){
 	this.vy = 0;
 	this.status = "VISIBLE";
 	this.type = "STATIC";
-	this.move = "STOP";
 	this.quantCollide = 0;
+	this.move = "STOP";
+	this.positionX = x;
+	this.positionY = y;
+	this.collideTrueOrFalse = false;
 }
 
 Sprite.prototype.centerX = function(){
