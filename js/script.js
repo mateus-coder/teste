@@ -1,16 +1,5 @@
 function funcaoGame(){
 	var tela = document.getElementById('jogo');
-	var row1 = document.getElementById('pontuacao');
-	var row2 = document.getElementById('gameover');
-	var content = "";
-	for(var i = 0; i < 50; i++){
-		content += `	<div class="indice">
-
-						</div>`;
-	}
-
-	row1.innerHTML = content;
-	row2.innerHTML = content;
 	tela.style.display = 'block';
 }
 
@@ -31,7 +20,7 @@ function funcaoGame(){
 	var tiposDeInimigosSourceY = [212,       312,      362 ];
 	//----------------------------sanduíche--pizza-----bolo------
 	var posicoesIniciaisInimigosY = [350,    200,      350];
-	var posicoesIniciaisInimigosX = [280,    280,      60];
+	var posicoesIniciaisInimigosX = [280,    280,      30];
 	var frutas = [];
 	var muros = [];
 	var paredes = [];
@@ -55,7 +44,7 @@ function funcaoGame(){
 		for(var y = 0; y < 20; y++){
 			switch(mapa[x][y]){
 				case 3:
-					if((Math.floor(Math.random()*11)) > 7){
+					if((Math.floor(Math.random()*10)) > 7){
 						var fruta = new Sprite(84, 131, 25,25,muro[x][y], x*25);
 						sprites.push(fruta);
 						frutas.push(fruta);
@@ -77,11 +66,11 @@ function funcaoGame(){
 		}
 	}
     //personagem
-    var char = new Sprite(500,162,50,50,180,400);
+    var char = new Sprite(500,162,50,50,180,425);
 	sprites.push(char);
 	//inimigos
 	for(var ç = 0; ç < 3; ç++){
-		var inimigo = new Sprite(750,tiposDeInimigosSourceY[ç],50,50,posicoesIniciaisInimigosX[ç],posicoesIniciaisInimigosY[ç]);
+		var inimigo = new InimigoObj(750,tiposDeInimigosSourceY[ç],50,50,posicoesIniciaisInimigosX[ç],posicoesIniciaisInimigosY[ç]);
 		sprites.push(inimigo);
 		inimigos.push(inimigo);
 	}
@@ -131,7 +120,7 @@ function funcaoGame(){
 		}
 	},false);
 	
-	window.addEventListener('keyup',function(e){
+	window.addEventListener('keyup', (e) => {
 		var key = e.keyCode;
 			switch(key){
 				case LEFT:
@@ -174,6 +163,13 @@ function funcaoGame(){
 	
 	
 	//FUNÇÕES =================================================================>
+	//remove os objetos do jogo 
+	function removeObjects(objectOnRemove, array){
+		var i = array.indexOf(objectOnRemove);
+		if(i !== -1){
+			array.splice(i, 1);
+		}
+	}
 	function getRandomInt(min, max) {
 		min = Math.ceil(min);
 		max = Math.floor(max);
@@ -200,15 +196,26 @@ function funcaoGame(){
 		char.x += char.positionX;
 		char.y += char.positionY;
 	}
-	setSource = (obj, value) => {
+	setSourceX = (obj, value) => {
 		obj.sourceX = value;
 	}
+	setSourceY = (obj, value) => {
+		obj.sourceY = value;
+	}
+	
 	ChangeBackground = () => {
 		delayMudancaDeCor = 0;
 		for(var i in sprites){
 			var sprite = sprites[i];
 			sprite.type === "DYNAMICBACKGROUND" ? setNewPosition(sprite) : delayMudancaDeCor++;
 		}
+	}
+	ChangeChar = () => {
+		char.sourceX === 700 ? setSourceX(char, 500) : setSourceX(char, char.sourceX + 50);
+	}
+	Animations = () => {
+		ChangeBackground();
+		ChangeChar();
 	}
 	leaveBorder = (inimigoType1) => {
 		//condição se o inimigo sair da borda ele retornar na outra extremidade
@@ -244,17 +251,17 @@ function funcaoGame(){
 						if(Math.floor(Math.random() * 10) > 5){
 							inimigoType1.vy = 5;
 							inimigoType1.vx = 0;
-							setSource(inimigoType1, 850);
+							setSourceX(inimigoType1, 850);
 						}//50%
 						else{
 							if(Math.floor(Math.random() * 10) > 5){
 								inimigoType1.vy = -5;
 								inimigoType1.vx = 0;
-								setSource(inimigoType1, 800);
+								setSourceX(inimigoType1, 800);
 							}//50%
 							else{
 								inimigoType1.vy = 0;
-								inimigoType1.vx == 5 ? setSource(inimigoType1, 900) : setSource(inimigoType1, 750); 
+								inimigoType1.vx == 5 ? setSourceX(inimigoType1, 900) : setSourceX(inimigoType1, 750); 
 								inimigoType1.vx *= -1;
 							}//default caso nenhuma das condições sejam verdadeiras
 						}
@@ -270,17 +277,17 @@ function funcaoGame(){
 							if(Math.floor(Math.random() * 10 ) > 5){
 								inimigoType1.vy = 0;
 								inimigoType1.vx = 5;
-								setSource(inimigoType1, 750);
+								setSourceX(inimigoType1, 750);
 							}//50%
 							else{
 								if(Math.floor(Math.random() * 10) > 5){
 									inimigoType1.vy = 0;
 									inimigoType1.vx = -5;
-									setSource(inimigoType1, 900);
+									setSourceX(inimigoType1, 900);
 								}
 								else{
 									inimigoType1.vx = 0;
-									inimigoType1.vy == 5 ? setSource(inimigoType1, 800) : setSource(inimigoType1, 850);
+									inimigoType1.vy == 5 ? setSourceX(inimigoType1, 800) : setSourceX(inimigoType1, 850);
 									inimigoType1.vy = -1 * inimigoType1.vy;	
 								}
 							}
@@ -290,6 +297,46 @@ function funcaoGame(){
 			}
 		}//final do for do cenario
 	} 
+	const colliding = {
+		collideTop : (desconto) => {
+			char.y -= desconto;
+			colliding["collideAllScene"]();
+			char.collideTrueOrFalseAllScene ? colliding["collideDown"](desconto) : char.positionY = -desconto;
+			char.y += desconto;
+		},
+		collideDown : (desconto) => {
+			char.y += desconto;
+			colliding["collideAllScene"]();
+			char.collideTrueOrFalseAllScene ? colliding["collideLeft"](desconto) : char.positionY = desconto;
+			char.y -= desconto;
+		},
+		collideLeft : (desconto) => {
+			char.x -= desconto;
+			colliding["collideAllScene"]();
+			char.collideTrueOrFalseAllScene ? colliding["collideRight"](desconto) : char.positionX = -desconto;
+			char.x += desconto;
+		},
+		collideRight : (desconto) => {
+			char.x += desconto;
+			colliding["collideAllScene"]();
+			char.collideTrueOrFalseAllScene ? colliding["collideTop"](desconto - 1) : char.positionX = desconto;
+			char.x -= desconto;
+		},
+		collideAllScene : () => {
+			//colisoes char x cenário 
+			colisoes1 = 0;
+			char.collideTrueOrFalseAllScene = false;
+			for(var j = 0; j < cenario.length; j++){
+				var thisCenario = cenario[j];
+				if(collide(char, thisCenario)){
+					colisoes1 += 1;
+					if(colisoes1 == 1){
+						char.collideTrueOrFalseAllScene = true;
+					}
+				}
+			}
+		}
+	}
 	collideWallChar = (exe) => {
 		//colisoes char x cenário 
 		colisoes1 = 0;
@@ -302,82 +349,56 @@ function funcaoGame(){
 				if(colisoes1 == 1){
 					char.collideTrueOrFalse = true;
 					if(exe){
-						mvLeft = mvDown = mvRight = mvTop = false;
-						
 						char.positionX = char.positionY = 0;
-
-						if(char.vy == 5 ){	
-							
-							char.positionY = -5;
-						}
-						
-						if(char.vy == -5 ){
-							
-							char.positionY = 5;
-						}
-						if(char.vx == 5 ){
-							
-							char.positionX = -5;
-						}
-						
-						if(char.vx == -5 ){
-							
-							char.positionX = 5;
-						}
+						const collideFunctions = colliding["collideTop"];
+						collideFunctions(5);
 						char.vx = 0;
 						char.vy = 0;
 					}
-					
 				}
 			}//fim do if
 			
 		}//fim do for j
 		
 	}
-	verifyBufferColliding = () => {
-		switch(char.move){
-			case "TOP":
-				char.y -= 5;
-				collideWallChar(false);
-				if(!char.collideTrueOrFalse){
-					char.vx = 0;
-					char.vy = -5;
-				}
-				char.y += 5;
-				break;
-			case "DOWN":
-				char.y += 5;
-				collideWallChar(false);
-				if(!char.collideTrueOrFalse){
-					char.vx = 0;
-					char.vy = 5;
-				}
-				char.y -= 5;
-				break;
-			case "LEFT":
-				char.x -= 5;
-				collideWallChar(false);
-				if(char.collideTrueOrFalse === false){
-					char.vx = -5;
-					char.vy = 0;
-				}
-				char.x += 5;
-				break;
-			case "RIGHT":
-				char.x += 5;
-				collideWallChar(false);
-				if(char.collideTrueOrFalse === false){
-					char.vx = 5;
-					char.vy = 0;
-				}
-				char.x -= 5;
-				break;
+	changeSkin = (typeChange) => {
+		const funcoesInternas = {
+			"EMAGRECE" : () => {
+				char.sourceY === 162 ? char.sourceY *= 1 : setSourceY(char, char.sourceY - 50);
+			},
+			"ENGORDA" : () => {
+				char.sourceY === 462 ? char.sourceY *= 1 : setSourceY(char, char.sourceY + 50);
+			}
+		}
+		const exec =  funcoesInternas[`${typeChange}`];
+		exec();
+	}
+	collideCharFruit = () => {
+		for(var k in frutas){
+			if( collide(char, frutas[k]) && frutas[k].status !== "INVISIBLE" ){
+				char.points += 1;
+				frutas[k].status = "INVISIBLE";
+				changeSkin("EMAGRECE");
+			}
+		}
+	}
+	collideCharInimigos = () => {
+		
+	}
+	removeInvisibleObjects = (objetos) => {
+		for(var espec in objetos){
+			var objetoEspecifico = objetos[espec];
+			if(objetoEspecifico.status === "INVISIBLE"){
+				removeObjects(objetoEspecifico, objetos);
+				removeObjects(objetoEspecifico, sprites);
+				espec--;
+			}
 		}
 	}
 	
 	function loop(){
 		requestAnimationFrame(loop, cnv);
-		contadorDeTempo === delayMudancaDeCor ? ChangeBackground() : delayMudancaDeCor++;
+		contadorDeTempo === delayMudancaDeCor ? Animations() : delayMudancaDeCor++;
 		//define as ações com base no estado do jogo
 		switch(gameState){
 			case LOADING:
@@ -409,6 +430,7 @@ function funcaoGame(){
 		if(mvLeft && !mvRight && !mvDown && !mvTop){
 			char.x -= 5;
 			collideWallChar(false);
+			
 			if(char.collideTrueOrFalse === false){
 				char.vx = -5;
 				char.vy = 0;
@@ -472,7 +494,8 @@ function funcaoGame(){
 		}
 		
 		collideWallChar(true);
-
+		collideCharFruit();
+		removeInvisibleObjects(frutas);
 		
 
 		//verificar se o personagem ultrapassou o limite da arena 
@@ -576,13 +599,7 @@ function funcaoGame(){
 		*/
 	}//fim do update
 	
-	//remove os objetos do jogo 
-	function removeObjects(objectOnRemove, array){
-		var i = array.indexOf(objectOnRemove);
-		if(i !== -1){
-			array.splice(i, 1);
-		}
-	}
+	
 	function render(){
 		ctx.clearRect(0,0,cnv.width,cnv.height);
 		if(sprites.length !== 0){

@@ -14,6 +14,9 @@ var Sprite = function(sourceX,sourceY,width,height,x,y){
 	this.positionX = x;
 	this.positionY = y;
 	this.collideTrueOrFalse = false;
+	this.collideTrueOrFalseAllScene = false;
+	this.points = 0;
+
 }
 
 Sprite.prototype.centerX = function(){
@@ -61,3 +64,8 @@ var SpriteDynamic =  function(sourceX ,sourceY ,width ,height ,x ,y) {
 SpriteDynamic.prototype = Object.create(Sprite.prototype);
 
 
+var InimigoObj = function(sourceX ,sourceY ,width ,height ,x ,y){
+	Sprite.call(this, sourceX ,sourceY ,width ,height ,x ,y );
+	this.state = "NORMAL";
+}
+InimigoObj.prototype = Object.create(Sprite.prototype);
