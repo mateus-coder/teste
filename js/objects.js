@@ -16,7 +16,22 @@ var Sprite = function(sourceX,sourceY,width,height,x,y){
 	this.collideTrueOrFalse = false;
 	this.collideTrueOrFalseAllScene = false;
 	this.points = 0;
-
+	this.keyPressed = "mvNone";
+	this.loser = 7;
+	this.colisoes = 0;
+	this.gameState = "INIT";
+	this.optionsRoutes = ["LEFT", "RIGHT", "DOWN", "TOP"];
+	this.lifeIcons = []; //vidas
+	this.lifePositionX = [0,50,100,150,200, 250];
+	this.sprites = []; //itens que devem ser exibidos especificamente para cada usuário
+	this.alimentosPaused = [];
+	this.scenePause = [];
+	this.sceneLose = [];
+	this.alimentosPausedX = [0,50,100,150,211,260];
+	this.alimentosPausedPositionY = [0,50,100,150,211,260];
+	this.alimentosPausedPositionX = [0,100,200,300,400,500];
+	this.contadorDePausa = 0;
+	this.contadorDeLose = 0;
 }
 
 Sprite.prototype.centerX = function(){
@@ -67,5 +82,44 @@ SpriteDynamic.prototype = Object.create(Sprite.prototype);
 var InimigoObj = function(sourceX ,sourceY ,width ,height ,x ,y){
 	Sprite.call(this, sourceX ,sourceY ,width ,height ,x ,y );
 	this.state = "NORMAL";
+	this.status = "VISIBLE";
 }
 InimigoObj.prototype = Object.create(Sprite.prototype);
+//lifeIcons 
+const LifeIcons = function(sourceX, sourceY, width, height, x, y){
+	Sprite.call(this, sourceX, sourceY, width, height, x, y);
+}
+LifeIcons.prototype = Object.create(Sprite.prototype);
+
+//game
+const Game = function () {
+	//estados do game
+	this.LOADING = 0;
+	this.PLAYING = 1;
+	this.PAUSED = 2;
+	this.OVER = 3;
+	this.gameState = this.LOADING;
+	//arranjos de objetos do game
+	this.sprites = [];
+	this.players = [];
+	this.assetsToLoad = [];
+	this.tiposDeInimigosSourceY = [212,       312,      362 ];
+	this.posicoesIniciaisInimigosY = [350,    200,      425];
+	this.posicoesIniciaisInimigosX = [280,    280,      30];
+	this.frutas = [];
+	this.inimigos = [];
+	this.cenario = [];
+	//estado do jogo finalizado ? 
+	this.end = false;
+	//contador de recursos
+	this.loadedAssets = 0;
+	this.acceptKeys = {
+		LEFT : 37,
+		RIGHT : 39,
+		ENTER : 13,
+		TOP : 38,
+		DOWN : 40,
+	};
+	this.contadorDeTempo = 60;
+	this.delayMudancaDeCor = 0;
+}

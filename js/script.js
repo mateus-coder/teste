@@ -4,164 +4,107 @@ function funcaoGame(){
 }
 
 (function(){
+	const initGame = {
+		createGame : () => {
+			return new Game();
+		}
+	}
+	const createGame = initGame["createGame"];
+	const game = createGame();
 	//canvas
 	var cnv = document.querySelector('canvas');
 	//contexto de renderização 2d
 	var ctx = cnv.getContext('2d');
-	
-	//RECURSOS DO JOGO ========================================================>
-	//arrays
-	var sprites = [];
-	var assetsToLoad = [];
-	var tiposDeObstaculosX = [100, 60, 80];
-	var tiposDeObstaculosY = [100, 70, 60];
-	var coresObstaculosX = [0, 200, 400];
-	var obstaculosInit = [450, 420, 400];
-	var tiposDeInimigosSourceY = [212,       312,      362 ];
-	//----------------------------sanduíche--pizza-----bolo------
-	var posicoesIniciaisInimigosY = [350,    200,      350];
-	var posicoesIniciaisInimigosX = [280,    280,      30];
-	var frutas = [];
-	var muros = [];
-	var paredes = [];
-	var inimigos = [];
-	var cenario = [];
-	
+	//fundo -----------------------------------
+	var background = new Sprite(0, 162,500, 550, 0, 0);
+	game.sprites.push(background);
 	//variáveis úteis
-	var alienFrequency = 100;
-	var alienTimer = 0;
-	var contadorDeNavesAbatidasValidas = 0;
-	var contadorDeNavesAbatidasInvalidas = 0;
 	var win = lose = false;
-	var move = 0;
-	var colisoes = 0;
-	var colisoes1 = 0;
-	//sprites
-	//cenário
-	var background = new Sprite(0, 162,500, 500, 0, 0);
-	sprites.push(background);
 	for(var x = 0; x < 20; x++){
 		for(var y = 0; y < 20; y++){
-			switch(mapa[x][y]){
+			switch(Scene.mapa[x][y]){
 				case 3:
 					if((Math.floor(Math.random()*10)) > 7){
-						var fruta = new Sprite(84, 131, 25,25,muro[x][y], x*25);
-						sprites.push(fruta);
-						frutas.push(fruta);
+						var fruta = new Sprite(84, 131, 25,25,Scene.muro[x][y], x*25);
+						game.sprites.push(fruta);
+						game.frutas.push(fruta);
 					}
 					break;
 				case 1:
-					var paredeSprite = new SpriteDynamic(500,112,25,50,25*y,parede[x][y]);
-					sprites.push(paredeSprite);
-					paredes.push(paredeSprite);
-					cenario.push(paredeSprite);
+					var paredeSprite = new SpriteDynamic(500,112,25,50,25*y,Scene.parede[x][y]);
+					game.sprites.push(paredeSprite);
+					game.cenario.push(paredeSprite);
 					break;
 				case 2:
-					var muroSprite = new SpriteDynamic(450,137,50,25,muro[x][y], 25*x);
-					sprites.push(muroSprite);
-					muros.push(muroSprite);
-					cenario.push(muroSprite);
+					var muroSprite = new SpriteDynamic(450,137,50,25,Scene.muro[x][y], 25*x);
+					game.sprites.push(muroSprite);
+					game.cenario.push(muroSprite);
 					break;
 			}
 		}
 	}
-    //personagem
-    var char = new Sprite(500,162,50,50,180,425);
-	sprites.push(char);
-	//inimigos
-	for(var ç = 0; ç < 3; ç++){
-		var inimigo = new InimigoObj(750,tiposDeInimigosSourceY[ç],50,50,posicoesIniciaisInimigosX[ç],posicoesIniciaisInimigosY[ç]);
-		sprites.push(inimigo);
-		inimigos.push(inimigo);
-	}
-	//obstaculos
-	//var obstaculos = new Sprite(0, 0, 100, 200, 380, 298);
-	//sprites.push(obstaculos);
 	
-	//imagem
+
+	//personagem---------------------------------
+    var char = new Sprite(500,162,50,50,180,425);
+	game.sprites.push(char);
+	game.players.push(char);
+	//inimigos-----------------------------------
+	for(var ç = 0; ç < 3; ç++){ 
+		var inimigo = new InimigoObj(750,game.tiposDeInimigosSourceY[ç],50,50,game.posicoesIniciaisInimigosX[ç],game.posicoesIniciaisInimigosY[ç]);
+		game.sprites.push(inimigo);
+		game.inimigos.push(inimigo);
+	}
+	for(var indice = 0; indice < 7; indice++){
+		const lifeIcon = new LifeIcons(112, 111, 50, 50, game.players[0].lifePositionX[indice], 500);
+		game.players[0].lifeIcons.push(lifeIcon);
+		game.players[0].sprites.push(lifeIcon);
+	}
+	
+	
+	
+    
+	
+	//imagem-------------------------------------
 	var img = new Image();
 	img.addEventListener('load',loadHandler,false);
 	img.src = "img/img.png";
-	assetsToLoad.push(img);
-	//contador de recursos
-	var loadedAssets = 0;
-	
-	//ações
-	var mvLeft = mvRight = mvTop = mvDown = false;	
-	//entradas
-	var LEFT = 37, RIGHT = 39, ENTER = 13, SPACE = 32, CIMA = 38, BAIXO = 40;
-	
-	
-	//estados do jogo
-	var LOADING = 0, PLAYING = 1, PAUSED = 2, OVER = 3;
-	var gameState = LOADING;
-
-	//variáveis de contadores que marcam o tempo de delay certa quantidade de frames 
-	const contadorDeTempo = 60;
-	var delayMudancaDeCor = 0;
+	game.assetsToLoad.push(img);
 	
 	//listeners
 	window.addEventListener('keydown',function(e){
-		var key = e.keyCode;
 		
-		switch(key){
-			case LEFT:
-				
-				break;
-			case RIGHT:
-				
-				break;
-			case BAIXO:
-				
-				break;
-			case CIMA:
-				
-				break;
-		}
 	},false);
 	
 	window.addEventListener('keyup', (e) => {
 		var key = e.keyCode;
 			switch(key){
-				case LEFT:
-					mvLeft = true;
-					mvDown = false;
-					mvTop = false;
-					mvRight = false;
-					
+
+				case game.acceptKeys["LEFT"]:
+					game.players[0].keyPressed = "mvLeft";
 					break;
-				case RIGHT:
-					mvLeft = false;
-					mvDown = false;
-					mvTop = false;
-					mvRight = true;
-					
+				case game.acceptKeys["RIGHT"]:
+					game.players[0].keyPressed = "mvRight";
 					break;
-				case BAIXO:
-					mvLeft = false;
-					mvDown = true;
-					mvTop = false;
-					mvRight = false;
+				case game.acceptKeys["DOWN"]:
+					game.players[0].keyPressed = "mvDown";
 					break;
-				case CIMA:
-					mvLeft = false;
-					mvDown = false;
-					mvTop = true;
-					mvRight = false;
+				case game.acceptKeys["TOP"]:
+					game.players[0].keyPressed = "mvTop";
 					break;
-				case ENTER:
-					if(gameState !== PLAYING){
-						gameState = PLAYING;
-					} else {
-						gameState = PAUSED;
+				case game.acceptKeys["ENTER"]:
+					game.players[0].keyPressed = "mvNone";
+					if(game.gameState !== game.OVER){
+						game.gameState !== game.PLAYING ? game.gameState = game.PLAYING : 
+						game.gameState = game.PAUSED;
+						game.players[0].gameState !== "PLAYING" ? game.players[0].gameState = "PLAYING" : 
+						game.players[0].gameState = "PAUSED";
 					}
 					break;
+				default : 
+					console.log("Invalid Key");
 			}
-		
 	},false);
-	
-	
-	
 	//FUNÇÕES =================================================================>
 	//remove os objetos do jogo 
 	function removeObjects(objectOnRemove, array){
@@ -176,11 +119,11 @@ function funcaoGame(){
 		return Math.floor(Math.random() * (max - min)) + min;
 	}
 	function loadHandler(){
-		loadedAssets++;
-		if(loadedAssets === assetsToLoad.length){
+		game.loadedAssets++;
+		if(game.loadedAssets === game.assetsToLoad.length){
 			img.removeEventListener('load',loadHandler,false);
 			//inicia o jogo
-			gameState = PAUSED;
+			game.gameState = game.PAUSED;
 		}
 	}
 	setNewPosition = (sprite) => {
@@ -204,157 +147,161 @@ function funcaoGame(){
 	}
 	
 	ChangeBackground = () => {
-		delayMudancaDeCor = 0;
-		for(var i in sprites){
-			var sprite = sprites[i];
-			sprite.type === "DYNAMICBACKGROUND" ? setNewPosition(sprite) : delayMudancaDeCor++;
+		game.delayMudancaDeCor = 0;
+		for(var i in game.sprites){
+			var sprite = game.sprites[i];
+			sprite.type === "DYNAMICBACKGROUND" ? setNewPosition(sprite) : game.delayMudancaDeCor++;
 		}
 	}
 	ChangeChar = () => {
-		char.sourceX === 700 ? setSourceX(char, 500) : setSourceX(char, char.sourceX + 50);
+		game.players[0].sourceX === 700 ? setSourceX(game.players[0], 500) : setSourceX(game.players[0], game.players[0].sourceX + 50);
+	}
+	ChangeLife = () => {
+		for(const ic in game.players[0].lifeIcons){
+			const icone = game.players[0].lifeIcons[ic];
+			icone.sourceY === 111 ? setSourceY(icone, 61) : setSourceY(icone, 111);
+		}
 	}
 	Animations = () => {
 		ChangeBackground();
 		ChangeChar();
+		ChangeLife();
 	}
-	leaveBorder = (inimigoType1) => {
+	leaveBorder = (inimigoType1, paused) => {
 		//condição se o inimigo sair da borda ele retornar na outra extremidade
 		if(inimigoType1.x > cnv.width - inimigoType1.width){
 			inimigoType1.x = 0;
+			return true;
 		}
 		if(inimigoType1.x < 0){
 			inimigoType1.x = cnv.width - inimigoType1.width;
+			return true;
 		}
-		if(inimigoType1.y > cnv.height - inimigoType1.height){
+		if(inimigoType1.y > (cnv.height - inimigoType1.height) + (- 50 + paused ) ){
 			inimigoType1.y = 0;
+			return false;
 		}
 		if(inimigoType1.y < 0 ){
-			inimigoType1.y = cnv.height - inimigoType1.height;
+			inimigoType1.y = (cnv.height - inimigoType1.height) + (- 50 + paused );
+			return false;
 		}
 	}
-	
+
+	const collidingInimigo = {
+		RIGHT : (objeto) => {
+			objeto["x"] += 5;
+			colliding["collideAllScene"](objeto);
+			objeto["vy"] = 0;
+			objeto["vx"] = 5;
+			objeto["x"] -= 5;
+			setSourceX(objeto, 750);
+		},
+		LEFT : (objeto) => {
+			objeto["x"] -= 5;
+			colliding["collideAllScene"](objeto);
+			objeto["vy"] = 0;
+			objeto["vx"] = -5;
+			objeto["x"] += 5;
+			setSourceX(objeto, 900);
+		},
+		DOWN : (objeto) => {
+			objeto["y"] += 5;
+			colliding["collideAllScene"](objeto);
+			objeto["vy"] = 5;
+			objeto["vx"] = 0;
+			objeto["y"] -= 5;
+			setSourceX(objeto, 850);
+		},
+		TOP : (objeto) => {
+			objeto["y"] -= 5;
+			colliding["collideAllScene"](objeto);
+			objeto["vy"] = -5;
+			objeto["vx"] = 0;
+			objeto["y"] += 5;
+			setSourceX(objeto, 800);
+		}
+	}
+	moveInimigo = (inimigoType1) => {
+		collidingInimigo[inimigoType1.optionsRoutes[getRandomInt(0, 4)]](inimigoType1);
+		while(inimigoType1.collideTrueOrFalseAllScene){
+			collidingInimigo[inimigoType1.optionsRoutes[getRandomInt(0, 4)]](inimigoType1);
+		}
+	}
 	collideWall = (inimigoType1) => {
-		for(var i = 0; i < cenario.length; i++){
-			var cenarioEspecifico = cenario[i];
+		inimigoType1.collideTrueOrFalse = false;
+		for(var i = 0; i < game.cenario.length; i++){
+			var cenarioEspecifico = game.cenario[i];
 			if(collide(inimigoType1, cenarioEspecifico)){
-				colisoes += 1;
-				if(colisoes == 1){
-					if(inimigoType1.vx != 0){
-						//dando espaçamento para não bugar na parede
-						if(inimigoType1.vx == 5){
-							inimigoType1.x -= 5; 
-						}
-						if(inimigoType1.vx == -5){
-							inimigoType1.x += 5;
-						}
-						
-						if(Math.floor(Math.random() * 10) > 5){
-							inimigoType1.vy = 5;
-							inimigoType1.vx = 0;
-							setSourceX(inimigoType1, 850);
-						}//50%
-						else{
-							if(Math.floor(Math.random() * 10) > 5){
-								inimigoType1.vy = -5;
-								inimigoType1.vx = 0;
-								setSourceX(inimigoType1, 800);
-							}//50%
-							else{
-								inimigoType1.vy = 0;
-								inimigoType1.vx == 5 ? setSourceX(inimigoType1, 900) : setSourceX(inimigoType1, 750); 
-								inimigoType1.vx *= -1;
-							}//default caso nenhuma das condições sejam verdadeiras
-						}
-					}
-					else{
-						if(inimigoType1.vy != 0){
-							if(inimigoType1.vy == 5){
-								inimigoType1.y -= 5;
-							}
-							if(inimigoType1.vy == -5){
-								inimigoType1.y += 5;
-							}
-							if(Math.floor(Math.random() * 10 ) > 5){
-								inimigoType1.vy = 0;
-								inimigoType1.vx = 5;
-								setSourceX(inimigoType1, 750);
-							}//50%
-							else{
-								if(Math.floor(Math.random() * 10) > 5){
-									inimigoType1.vy = 0;
-									inimigoType1.vx = -5;
-									setSourceX(inimigoType1, 900);
-								}
-								else{
-									inimigoType1.vx = 0;
-									inimigoType1.vy == 5 ? setSourceX(inimigoType1, 800) : setSourceX(inimigoType1, 850);
-									inimigoType1.vy = -1 * inimigoType1.vy;	
-								}
-							}
-						} //if vy != de 0
-					} // fim do else do vx != 0
+				inimigoType1.colisoes += 1;
+				if(inimigoType1.colisoes == 1){
+					inimigoType1.collideTrueOrFalse = true;
+					//dando espaçamento para não bugar na parede
+					inimigoType1.positionX = inimigoType1.positionY = 0;
+					const collideFunctions = colliding["collideTop"];
+					collideFunctions(inimigoType1, 5);
+					setPosition(inimigoType1);
+					moveInimigo(inimigoType1);
 				}
 			}
 		}//final do for do cenario
 	} 
 	const colliding = {
-		collideTop : (desconto) => {
-			char.y -= desconto;
-			colliding["collideAllScene"]();
-			char.collideTrueOrFalseAllScene ? colliding["collideDown"](desconto) : char.positionY = -desconto;
-			char.y += desconto;
+		collideTop : (objeto, desconto) => {
+			objeto.y -= desconto;
+			colliding["collideAllScene"](objeto);
+			objeto.collideTrueOrFalseAllScene ? colliding["collideDown"](objeto,desconto) : objeto.positionY = -desconto;
+			objeto.y += desconto;
 		},
-		collideDown : (desconto) => {
-			char.y += desconto;
-			colliding["collideAllScene"]();
-			char.collideTrueOrFalseAllScene ? colliding["collideLeft"](desconto) : char.positionY = desconto;
-			char.y -= desconto;
+		collideDown : (objeto, desconto) => {
+			objeto.y += desconto;
+			colliding["collideAllScene"](objeto);
+			objeto.collideTrueOrFalseAllScene ? colliding["collideLeft"](objeto,desconto) : objeto.positionY = desconto;
+			objeto.y -= desconto;
 		},
-		collideLeft : (desconto) => {
-			char.x -= desconto;
-			colliding["collideAllScene"]();
-			char.collideTrueOrFalseAllScene ? colliding["collideRight"](desconto) : char.positionX = -desconto;
-			char.x += desconto;
+		collideLeft : (objeto, desconto) => {
+			objeto.x -= desconto;
+			colliding["collideAllScene"](objeto);
+			objeto.collideTrueOrFalseAllScene ? colliding["collideRight"](objeto,desconto) : objeto.positionX = -desconto;
+			objeto.x += desconto;
 		},
-		collideRight : (desconto) => {
-			char.x += desconto;
-			colliding["collideAllScene"]();
-			char.collideTrueOrFalseAllScene ? colliding["collideTop"](desconto - 1) : char.positionX = desconto;
-			char.x -= desconto;
+		collideRight : (objeto, desconto) => {
+			objeto.x += desconto;
+			colliding["collideAllScene"](objeto);
+			objeto.collideTrueOrFalseAllScene ? colliding["collideTop"](objeto,desconto - 1) : objeto.positionX = desconto; 
+			objeto.x -= desconto;
 		},
-		collideAllScene : () => {
+		collideAllScene : (objeto) => {
 			//colisoes char x cenário 
-			colisoes1 = 0;
-			char.collideTrueOrFalseAllScene = false;
-			for(var j = 0; j < cenario.length; j++){
-				var thisCenario = cenario[j];
-				if(collide(char, thisCenario)){
-					colisoes1 += 1;
-					if(colisoes1 == 1){
-						char.collideTrueOrFalseAllScene = true;
+			objeto.colisoes = 0;
+			objeto.collideTrueOrFalseAllScene = false;
+			for(var j = 0; j < game.cenario.length; j++){
+				var thisCenario = game.cenario[j];
+				if(collide(objeto, thisCenario)){
+					objeto.colisoes += 1;
+					if(objeto.colisoes == 1){
+						objeto.collideTrueOrFalseAllScene = true;
 					}
 				}
 			}
 		}
 	}
-	collideWallChar = (exe) => {
+	collideWallChar = () => {
 		//colisoes char x cenário 
-		colisoes1 = 0;
-		char.collideTrueOrFalse = false;
+		game.players[0].colisoes = 0;
+		game.players[0].collideTrueOrFalse = false;
 		
-		for(var j = 0; j < cenario.length; j++){
-			var thisCenario = cenario[j];
-			if(collide(char, thisCenario)){
-				colisoes1 += 1;
-				if(colisoes1 == 1){
-					char.collideTrueOrFalse = true;
-					if(exe){
-						char.positionX = char.positionY = 0;
-						const collideFunctions = colliding["collideTop"];
-						collideFunctions(5);
-						char.vx = 0;
-						char.vy = 0;
-					}
+		for(var j = 0; j < game.cenario.length; j++){
+			var thisCenario = game.cenario[j];
+			if(collide(game.players[0], thisCenario)){
+				game.players[0].colisoes += 1;
+				if(game.players[0].colisoes == 1){
+					game.players[0].collideTrueOrFalse = true;
+					game.players[0].positionX = game.players[0].positionY = 0;
+					const collideFunctions = colliding["collideTop"];
+					collideFunctions(game.players[0], 5);
+					game.players[0].vx = 0;
+					game.players[0].vy = 0;
+					
 				}
 			}//fim do if
 			
@@ -364,28 +311,48 @@ function funcaoGame(){
 	changeSkin = (typeChange) => {
 		const funcoesInternas = {
 			"EMAGRECE" : () => {
-				char.sourceY === 162 ? char.sourceY *= 1 : setSourceY(char, char.sourceY - 50);
+				game.players[0].sourceY === 162 ? game.players[0].sourceY *= 1 : setSourceY(game.players[0], game.players[0].sourceY - 50);
 			},
 			"ENGORDA" : () => {
-				char.sourceY === 462 ? char.sourceY *= 1 : setSourceY(char, char.sourceY + 50);
+				game.players[0].sourceY === 462 ? game.players[0].sourceY *= 1 : setSourceY(game.players[0], game.players[0].sourceY + 50);
 			}
 		}
 		const exec =  funcoesInternas[`${typeChange}`];
 		exec();
 	}
 	collideCharFruit = () => {
-		for(var k in frutas){
-			if( collide(char, frutas[k]) && frutas[k].status !== "INVISIBLE" ){
-				char.points += 1;
-				frutas[k].status = "INVISIBLE";
+		for(var k in game.frutas){
+			if( collide(game.players[0], game.frutas[k]) && game.frutas[k].status !== "INVISIBLE" ){
+				game.players[0].points += 1;
+				game.frutas[k].status = "INVISIBLE";
 				changeSkin("EMAGRECE");
 			}
 		}
 	}
-	collideCharInimigos = () => {
-		
+	gameLose = (indice) => {
+		game.players[0].lifeIcons[indice].status = "INVISIBLE";
+		game.players[0].gameState = "LOSE";
 	}
-	removeInvisibleObjects = (objetos) => {
+	verifyGameLose = (indice) => {
+		indice === 0 ? gameLose(indice)  :
+		game.players[0].lifeIcons[indice].status = "INVISIBLE";
+	}
+	collideCharInimigos = () => {
+		for(var ini in game.inimigos){
+			if( collide(game.players[0], game.inimigos[ini]) && game.inimigos[ini].status !== "INVISIBLE" ){
+				game.players[0].loser -= 1;
+				verifyGameLose(game.players[0].loser);
+				game.inimigos[ini].status = "INVISIBLE";
+				changeSkin("ENGORDA");
+				for(var ç = 0; ç < 1; ç++){
+					var inimigo = new InimigoObj(750,game.tiposDeInimigosSourceY[ç],50,50,game.posicoesIniciaisInimigosX[ç],game.posicoesIniciaisInimigosY[ç]);
+					game.sprites.push(inimigo);
+					game.inimigos.push(inimigo);
+				}
+			}
+		}
+	}
+	removeInvisibleObjects = (objetos, sprites) => {
 		for(var espec in objetos){
 			var objetoEspecifico = objetos[espec];
 			if(objetoEspecifico.status === "INVISIBLE"){
@@ -395,86 +362,149 @@ function funcaoGame(){
 			}
 		}
 	}
-	
+	clearObjectsModePause = () => {
+		for(var sce in game.players[0].scenePause){
+			removeObjects(game.players[0].scenePause[sce], game.players[0].sprites);
+			removeObjects(game.players[0].scenePause[sce], game.players[0].scenePause);
+			sce--;
+		}
+		for(var ali in game.players[0].alimentosPaused){
+			removeObjects(game.players[0].alimentosPaused[ali], game.players[0].sprites);
+			removeObjects(game.players[0].alimentosPaused[ali], game.players[0].alimentosPaused);
+			ali--;
+		}
+	}
+	setReverseAnimation = (alimento, veloX, positX) => {
+		alimento.vx = veloX * -1;
+		alimento.x = positX;
+	}
+	setAnimationPaused = () => {
+		for(var obj in game.players[0].alimentosPaused){
+			var alimento = game.players[0].alimentosPaused[obj];
+			alimento.vy = 2;
+			const velocidadeX = alimento.vx;
+			const positionX = alimento.x;
+			game.players[0].contadorDePausa % 5 === 0 ?
+			leaveBorder(alimento, 50) ? setReverseAnimation(alimento, velocidadeX, positionX)  : alimento.vy *= 1 : leaveBorder(alimento, 50);
+			setMove(alimento);
+		}
+	}
+	setAnimationLose = () => {
+		game.players[0].contadorDeLose % 30 === 0 && game.players[0].sceneLose[0].sourceX < 4800 ? setSourceX(game.players[0].sceneLose[0], game.players[0].sceneLose[0].sourceX + 500 ) : game.players[0].contadorDeLose *= 1;
+	}
+	createSceneLose = () => {
+		var backgroundLose = new Sprite(2306,163,500,550,0,0);
+		game.players[0].sprites.push(backgroundLose);
+		game.players[0].sceneLose.push(backgroundLose);
+	}
+	createScenePause = (pause) => {
+		var backgroundPause;
+		pause ? backgroundPause = new Sprite(1803,161,500, 550, 0, 0) : backgroundPause = new Sprite(1000,161,500, 550, 0, 0);
+		game.players[0].sprites.push(backgroundPause);
+		game.players[0].scenePause.push(backgroundPause);
+		for(var alimento = 0; alimento < 6; alimento++){
+			var alimentoEspec = new Sprite(game.players[0].alimentosPausedX[alimento],0,50,55,game.players[0].alimentosPausedPositionX[alimento], game.players[0].alimentosPausedPositionY[alimento]);
+			game.players[0].sprites.push(alimentoEspec);
+			game.players[0].alimentosPaused.push(alimentoEspec);
+		}
+		var playButton = new Sprite(1500,161,300,116,Math.trunc((cnv.width) / 2) - Math.trunc( (300 / 2) ), Math.trunc((cnv.height) / 2) - Math.trunc( (116 / 2) )  );
+		game.players[0].sprites.push(playButton);
+		game.players[0].scenePause.push(playButton);
+	}
 	function loop(){
 		requestAnimationFrame(loop, cnv);
-		contadorDeTempo === delayMudancaDeCor ? Animations() : delayMudancaDeCor++;
+		game.contadorDeTempo === game.delayMudancaDeCor ? Animations() : game.delayMudancaDeCor++;
 		//define as ações com base no estado do jogo
-		switch(gameState){
-			case LOADING:
+		switch(game.gameState){
+			case game.LOADING:
 				console.log('LOADING...');
 				break;
-			case PLAYING:
+			case game.PLAYING:
 				update();
 				break;
-			case OVER:
-				if(win && !lose){
-					win = false;
-					contadorDeNavesAbatidasValidas = 0;
-					console.log('Você venceu');
-				}
-				if(lose && !win){
-					console.log('Você perdeu');
-				}
+			case game.OVER:
 				break;
-			case PAUSED:
+			case game.PAUSED:
 				break;
 		}
+		const playerGameState = {
+			PAUSED : () => {
+				game.players[0].contadorDePausa += 1;
+				game.players[0].contadorDePausa === 1 ? createScenePause(true) : updatePause();
+			},
+			PLAYING : () => {
+				//update();
+				game.players[0].contadorDePausa = 0;
+				
+			},
+			WIN : () => {
+				game.gameState = game.OVER;
+			},
+			LOSE : () => {
+				game.players[0].status = "INVISIBLE";
+				//removeInvisibleObjects(game.sprites, game.players);
+				game.gameState = game.OVER;
+				game.players[0].contadorDeLose += 1;
+				game.players[0].contadorDeLose === 1 ? createSceneLose() : updateLose();
+			},
+			INIT : () => {
+				game.players[0].contadorDePausa += 1;
+				game.players[0].contadorDePausa === 1 ? createScenePause(false) : updatePause();
+				
+			}
+		}
+		playerGameState[`${game.players[0].gameState}`]();
 		render();
 	}
 	
 	function update(){
 		//Regras do jogo camada de decisões
 		//move para a esquerda
-		
-		if(mvLeft && !mvRight && !mvDown && !mvTop){
-			char.x -= 5;
-			collideWallChar(false);
-			
-			if(char.collideTrueOrFalse === false){
-				char.vx = -5;
-				char.vy = 0;
+		const moviments = {
+			mvRight : () => {
+				game.players[0].x += 5;
+				colliding["collideAllScene"](game.players[0]);
+				if(game.players[0].collideTrueOrFalseAllScene === false){
+					game.players[0].vx = 5;
+					game.players[0].vy = 0;
+				}
+				game.players[0].x -= 5;
+			},
+			mvLeft : () => {
+				game.players[0].x -= 5;
+				colliding["collideAllScene"](game.players[0]);
+				
+				if(game.players[0].collideTrueOrFalseAllScene === false){
+					game.players[0].vx = -5;
+					game.players[0].vy = 0;
+				}
+				
+				game.players[0].x += 5;
+			},
+			mvDown : () => {
+				game.players[0].y += 5;
+				colliding["collideAllScene"](game.players[0]);
+				if(game.players[0].collideTrueOrFalseAllScene === false){
+					game.players[0].vx = 0;
+					game.players[0].vy = 5;
+				}
+				game.players[0].y -= 5;
+			},
+			mvTop : () => {
+				game.players[0].y -= 5;
+				colliding["collideAllScene"](game.players[0]);
+				if(game.players[0].collideTrueOrFalseAllScene === false){
+					game.players[0].vx = 0;
+					game.players[0].vy = -5;
+				}
+				game.players[0].y += 5;
+			},
+			mvNone : () => {
+				console.log("waiting pressed key...");
 			}
-			
-			char.x += 5;
 		}
-		
-		//move para a direita
-		if(mvRight && !mvLeft && !mvDown && !mvTop){
-			char.x += 5;
-			collideWallChar(false);
-			if(char.collideTrueOrFalse === false){
-				char.vx = 5;
-				char.vy = 0;
-			}
-			char.x -= 5;
-		}
-
-		//move para cima 
-		if(mvTop && !mvLeft && !mvDown && !mvRight){
-			char.y -= 5;
-			collideWallChar(false);
-			if(char.collideTrueOrFalse === false){
-				char.vx = 0;
-				char.vy = -5;
-			}
-			char.y += 5;
-		}
-
-		//move para baixo
-		if(mvDown && !mvLeft && !mvTop && !mvRight){
-			char.y += 5;
-			collideWallChar(false);
-			if(char.collideTrueOrFalse === false){
-				char.vx = 0;
-				char.vy = 5;
-			}
-			char.y -= 5;
-		}
-		if(!mvDown && !mvLeft && !mvTop && !mvRight ){
-			char.vx = 0;
-			char.vy = 0;
-		}
+		const move = moviments[`${game.players[0].keyPressed}`];
+		move();
 		//atualiza a posição
 		/*move = char.x;
 		char.x = Math.max(0,Math.min(cnv.width - char.width, char.x + char.vx));
@@ -486,127 +516,59 @@ function funcaoGame(){
 		
 		//for para perceber se houve choque entre o inimigo e os muros
 		
-		for(var z in inimigos){
-			var inimigoType1 = inimigos[z];
-			colisoes = 0;
+		for(var z in game.inimigos){
+			var inimigoType1 = game.inimigos[z];
+			inimigoType1.colisoes = 0;
 			collideWall(inimigoType1);
-			leaveBorder(inimigoType1);
+			!inimigoType1.collideTrueOrFalse ? setMove(inimigoType1) : inimigoType1.colisoes *= 1;
+			leaveBorder(inimigoType1, 0);
 		}
-		
-		collideWallChar(true);
-		collideCharFruit();
-		removeInvisibleObjects(frutas);
-		
-
 		//verificar se o personagem ultrapassou o limite da arena 
-		if(char.x > cnv.width - char.width){
-			char.x = 0;
-		}
-		if(char.x < 0){
-			char.x = cnv.width - char.width;
-		}
-		if(char.y > cnv.height - char.height){
-			char.y = 0;
-		}
-		if(char.y < 0 ){
-			char.y = cnv.height - char.height;
-		}
+		leaveBorder(game.players[0], 0);
+		
+		collideWallChar();
+		collideCharFruit();
+		collideCharInimigos();
+		removeInvisibleObjects(game.frutas, game.sprites);
+		removeInvisibleObjects(game.inimigos, game.sprites);
+		removeInvisibleObjects(game.players[0].lifeIcons, game.players[0].sprites);
+		
 		//atualiza a posição do personagem
-		!char.collideTrueOrFalse ? setMove(char) : setPosition(char);
-
-		//atualiza a posição do inimigo
-		for(var n in inimigos){
-			inimigos[n].x += inimigos[n].vx;
-			inimigos[n].y += inimigos[n].vy;
-		}
-
-		//obstaculos.x = obstaculos.x - 7;
-
-		/*if(obstaculos.x < 0){
-			obstaculos.status = "INVISIBLE";
-			removeObjects(obstaculos, sprites);
-			var syhei = tiposDeObstaculosY[getRandomInt(0, 3)];
-			var sxwid = tiposDeObstaculosX[getRandomInt(0, 3)];
-			var x1 = coresObstaculosX[getRandomInt(0, 3)];
-
-			obstaculos = new Sprite(x1, 0, sxwid, syhei, obstaculosInit[getRandomInt(0,3)], cnv.height - sywid);
-			sprites.push(obstaculos);
-		}*/
-
-		//atualiza a posição dos mísseis
-		/*for(var i in misseis){
-			var missel = misseis[i];
-			missel.y += missel.vy;
-			if(missel.y < -missel.height){//missel passar da borda superior do canvas
-				removeObjects(missel, misseis);
-				removeObjects(missel, sprites);
-				i--;
-			}
-		}
-		//encremento do alienTimer
-		alienTimer++;
-		//criação do alien caso o Timer se iguale a frequencia
-		if(alienTimer === alienFrequency){
-			makeAlien();
-			alienTimer = 0;
-			//ajuste da frequencia de aliens
-			if(alienFrequency > 2){
-				alienFrequency--;
-			}
-		}
-		//atualiza posição dos aliens
-		for(var i in aliens){
-			var alieni = aliens[i];
-			if(alieni.state !== alieni.EXPLODED){
-				alieni.y += alieni.vy;
-				if(alieni.state === alieni.CRAZY){
-					if(alieni.x > cnv.width - alieni.width || alieni.x < 0){//evitar que os objetos inimigos ultrapassem das bordas laterais do canvas
-						alieni.vx *= -1;
-					}
-					alieni.x += alieni.vx;
-				}
-				if(alieni.y > cnv.height + alieni.height){//quando eu passar da borda inferior do canvas remover item
-					removeObjects(alieni, aliens);
-					removeObjects(alieni, sprites);
-					i--;
-				}
-			}
-
-			//Confere se algum alien foi destruído
-			for(var j in misseis){
-				var missile = misseis[j];
-				if(collide(missile, alieni) && alieni.state !== alieni.EXPLODED){
-					if(!win  && !lose){
-						progressoAtual();
-					}
-					
-					if(contadorDeNavesAbatidasValidas === 50){
-						win = true;
-						gameState = OVER;
-					}
-					else{
-						win = false;
-					}
-					destroyAlien(alieni);
-					removeObjects(missile, misseis);
-					removeObjects(missile, sprites);
-					j--;
-					i--;
-				}
-			}
-			
-		}//fim do for que faz a varredura no array de aliens
-		*/
+		!game.players[0].collideTrueOrFalse ? setMove(game.players[0]) : setPosition(game.players[0]);
+		//------------------------seta o movimento/ seta o recoy caso o inimigo venha a colida com o cenário;
+		
+		//Animação do modo pause 
+		game.players[0].gameState !== "PAUSED" ? clearObjectsModePause() : game.players[0].gameState = "PAUSED";
+		
+		
 	}//fim do update
-	
+	function updatePause() {
+		setAnimationPaused();
+	}
+	function updateLose(){
+		setAnimationLose();
+	}
+	function updateWin(){
+
+	}
 	
 	function render(){
 		ctx.clearRect(0,0,cnv.width,cnv.height);
-		if(sprites.length !== 0){
-			for(var i in sprites){
-				var spr = sprites[i];
+		//itens gerais para todos os players
+		if(game.sprites.length !== 0){
+			for(const i in game.sprites){
+				const spr = game.sprites[i];
 				if(spr.status === "VISIBLE"){
 					ctx.drawImage(img,spr.sourceX,spr.sourceY,spr.width,spr.height,Math.floor(spr.x),Math.floor(spr.y),spr.width,spr.height);
+				}
+			}
+		}
+		//itens específicos de cada player
+		if(game.players[0].sprites.length !== 0){
+			for(const gameSprite in game.players[0].sprites){
+				const sprEspecifico = game.players[0].sprites[gameSprite];
+				if(sprEspecifico.status === "VISIBLE"){
+					ctx.drawImage(img,sprEspecifico.sourceX,sprEspecifico.sourceY,sprEspecifico.width,sprEspecifico.height,Math.floor(sprEspecifico.x),Math.floor(sprEspecifico.y),sprEspecifico.width,sprEspecifico.height);
 				}
 			}
 		}
