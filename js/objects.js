@@ -32,6 +32,8 @@ var Sprite = function(sourceX,sourceY,width,height,x,y){
 	this.alimentosPausedPositionX = [0,100,200,300,400,500];
 	this.contadorDePausa = 0;
 	this.contadorDeLose = 0;
+	this.contadorDeWin = 0;
+	this.indiceReal = 0;
 }
 
 Sprite.prototype.centerX = function(){
@@ -122,4 +124,8 @@ const Game = function () {
 	};
 	this.contadorDeTempo = 60;
 	this.delayMudancaDeCor = 0;
+}
+
+Game.prototype.start = function () {
+	
 }

@@ -1,5 +1,5 @@
 function funcaoGame(){
-	var tela = document.getElementById('jogo');
+	let tela = document.getElementById('jogo');
 	tela.style.display = 'block';
 }
 
@@ -12,31 +12,30 @@ function funcaoGame(){
 	const createGame = initGame["createGame"];
 	const game = createGame();
 	//canvas
-	var cnv = document.querySelector('canvas');
+	let cnv = document.querySelector('canvas');
 	//contexto de renderização 2d
-	var ctx = cnv.getContext('2d');
+	let ctx = cnv.getContext('2d');
 	//fundo -----------------------------------
-	var background = new Sprite(0, 162,500, 550, 0, 0);
+	let background = new Sprite(0, 162,500, 550, 0, 0);
 	game.sprites.push(background);
-	//variáveis úteis
-	var win = lose = false;
-	for(var x = 0; x < 20; x++){
-		for(var y = 0; y < 20; y++){
+	
+	for(let x = 0; x < 20; x++){
+		for(let y = 0; y < 20; y++){
 			switch(Scene.mapa[x][y]){
 				case 3:
 					if((Math.floor(Math.random()*10)) > 7){
-						var fruta = new Sprite(84, 131, 25,25,Scene.muro[x][y], x*25);
+						let fruta = new Sprite(84, 131, 25,25,Scene.muro[x][y], x*25);
 						game.sprites.push(fruta);
 						game.frutas.push(fruta);
 					}
 					break;
 				case 1:
-					var paredeSprite = new SpriteDynamic(500,112,25,50,25*y,Scene.parede[x][y]);
+					let paredeSprite = new SpriteDynamic(500,112,25,50,25*y,Scene.parede[x][y]);
 					game.sprites.push(paredeSprite);
 					game.cenario.push(paredeSprite);
 					break;
 				case 2:
-					var muroSprite = new SpriteDynamic(450,137,50,25,Scene.muro[x][y], 25*x);
+					let muroSprite = new SpriteDynamic(450,137,50,25,Scene.muro[x][y], 25*x);
 					game.sprites.push(muroSprite);
 					game.cenario.push(muroSprite);
 					break;
@@ -46,17 +45,17 @@ function funcaoGame(){
 	
 
 	//personagem---------------------------------
-    var char = new Sprite(500,162,50,50,180,425);
+    let char = new Sprite(500,162,50,50,180,425);
 	game.sprites.push(char);
 	game.players.push(char);
 	//inimigos-----------------------------------
-	for(var ç = 0; ç < 3; ç++){ 
-		var inimigo = new InimigoObj(750,game.tiposDeInimigosSourceY[ç],50,50,game.posicoesIniciaisInimigosX[ç],game.posicoesIniciaisInimigosY[ç]);
+	for(let ç = 0; ç < 3; ç++){ 
+		let inimigo = new InimigoObj(750,game.tiposDeInimigosSourceY[ç],50,50,game.posicoesIniciaisInimigosX[ç],game.posicoesIniciaisInimigosY[ç]);
 		game.sprites.push(inimigo);
 		game.inimigos.push(inimigo);
 	}
-	for(var indice = 0; indice < 7; indice++){
-		const lifeIcon = new LifeIcons(112, 111, 50, 50, game.players[0].lifePositionX[indice], 500);
+	for(let indice = 0; indice < 7; indice++){
+		let lifeIcon = new LifeIcons(112, 111, 50, 50, game.players[0].lifePositionX[indice], 500);
 		game.players[0].lifeIcons.push(lifeIcon);
 		game.players[0].sprites.push(lifeIcon);
 	}
@@ -78,8 +77,8 @@ function funcaoGame(){
 	
 	window.addEventListener('keyup', (e) => {
 		var key = e.keyCode;
+		console.log(key);
 			switch(key){
-
 				case game.acceptKeys["LEFT"]:
 					game.players[0].keyPressed = "mvLeft";
 					break;
@@ -93,22 +92,17 @@ function funcaoGame(){
 					game.players[0].keyPressed = "mvTop";
 					break;
 				case game.acceptKeys["ENTER"]:
-					game.players[0].keyPressed = "mvNone";
-					if(game.gameState !== game.OVER){
-						game.gameState !== game.PLAYING ? game.gameState = game.PLAYING : 
-						game.gameState = game.PAUSED;
-						game.players[0].gameState !== "PLAYING" ? game.players[0].gameState = "PLAYING" : 
-						game.players[0].gameState = "PAUSED";
-					}
+					game.players[0].keyPressed = "pause";
 					break;
 				default : 
+					game.players[0].keyPressed = "mvNone";
 					console.log("Invalid Key");
 			}
 	},false);
 	//FUNÇÕES =================================================================>
 	//remove os objetos do jogo 
 	function removeObjects(objectOnRemove, array){
-		var i = array.indexOf(objectOnRemove);
+		let i = array.indexOf(objectOnRemove);
 		if(i !== -1){
 			array.splice(i, 1);
 		}
@@ -148,8 +142,8 @@ function funcaoGame(){
 	
 	ChangeBackground = () => {
 		game.delayMudancaDeCor = 0;
-		for(var i in game.sprites){
-			var sprite = game.sprites[i];
+		for(let i in game.sprites){
+			let sprite = game.sprites[i];
 			sprite.type === "DYNAMICBACKGROUND" ? setNewPosition(sprite) : game.delayMudancaDeCor++;
 		}
 	}
@@ -157,8 +151,8 @@ function funcaoGame(){
 		game.players[0].sourceX === 700 ? setSourceX(game.players[0], 500) : setSourceX(game.players[0], game.players[0].sourceX + 50);
 	}
 	ChangeLife = () => {
-		for(const ic in game.players[0].lifeIcons){
-			const icone = game.players[0].lifeIcons[ic];
+		for(let ic in game.players[0].lifeIcons){
+			let icone = game.players[0].lifeIcons[ic];
 			icone.sourceY === 111 ? setSourceY(icone, 61) : setSourceY(icone, 111);
 		}
 	}
@@ -229,8 +223,8 @@ function funcaoGame(){
 	}
 	collideWall = (inimigoType1) => {
 		inimigoType1.collideTrueOrFalse = false;
-		for(var i = 0; i < game.cenario.length; i++){
-			var cenarioEspecifico = game.cenario[i];
+		for(let i = 0; i < game.cenario.length; i++){
+			let cenarioEspecifico = game.cenario[i];
 			if(collide(inimigoType1, cenarioEspecifico)){
 				inimigoType1.colisoes += 1;
 				if(inimigoType1.colisoes == 1){
@@ -274,8 +268,8 @@ function funcaoGame(){
 			//colisoes char x cenário 
 			objeto.colisoes = 0;
 			objeto.collideTrueOrFalseAllScene = false;
-			for(var j = 0; j < game.cenario.length; j++){
-				var thisCenario = game.cenario[j];
+			for(let j = 0; j < game.cenario.length; j++){
+				let thisCenario = game.cenario[j];
 				if(collide(objeto, thisCenario)){
 					objeto.colisoes += 1;
 					if(objeto.colisoes == 1){
@@ -290,8 +284,8 @@ function funcaoGame(){
 		game.players[0].colisoes = 0;
 		game.players[0].collideTrueOrFalse = false;
 		
-		for(var j = 0; j < game.cenario.length; j++){
-			var thisCenario = game.cenario[j];
+		for(let j = 0; j < game.cenario.length; j++){
+			let thisCenario = game.cenario[j];
 			if(collide(game.players[0], thisCenario)){
 				game.players[0].colisoes += 1;
 				if(game.players[0].colisoes == 1){
@@ -320,32 +314,49 @@ function funcaoGame(){
 		const exec =  funcoesInternas[`${typeChange}`];
 		exec();
 	}
+	const functionsGameWin = {
+		setPointsInScreen : () => {
+			
+		},
+		gameWin : () => {
+			functionsGameWin["setPointsInScreen"]();
+			game.players[0].gameState = "WIN";
+		},
+		verifyGameWin : () => {
+			game.players[0].points === 5 ? functionsGameWin["gameWin"]() : functionsGameWin["setPointsInScreen"]();	
+		}
+	}
+	
 	collideCharFruit = () => {
-		for(var k in game.frutas){
+		for(let k in game.frutas){
 			if( collide(game.players[0], game.frutas[k]) && game.frutas[k].status !== "INVISIBLE" ){
 				game.players[0].points += 1;
+				functionsGameWin["verifyGameWin"]();
 				game.frutas[k].status = "INVISIBLE";
 				changeSkin("EMAGRECE");
 			}
 		}
 	}
-	gameLose = (indice) => {
-		game.players[0].lifeIcons[indice].status = "INVISIBLE";
-		game.players[0].gameState = "LOSE";
+	const functionsGameLose = {
+		gameLose : (indice) => {
+			game.players[0].lifeIcons[indice].status = "INVISIBLE";
+			game.players[0].gameState = "LOSE";
+		},
+		verifyGameLose : (indice) => {
+			indice === 0 ? functionsGameLose["gameLose"](indice)  :
+			game.players[0].lifeIcons[indice].status = "INVISIBLE";
+		}
 	}
-	verifyGameLose = (indice) => {
-		indice === 0 ? gameLose(indice)  :
-		game.players[0].lifeIcons[indice].status = "INVISIBLE";
-	}
+	
 	collideCharInimigos = () => {
-		for(var ini in game.inimigos){
+		for(let ini in game.inimigos){
 			if( collide(game.players[0], game.inimigos[ini]) && game.inimigos[ini].status !== "INVISIBLE" ){
 				game.players[0].loser -= 1;
-				verifyGameLose(game.players[0].loser);
+				functionsGameLose["verifyGameLose"](game.players[0].loser);
 				game.inimigos[ini].status = "INVISIBLE";
 				changeSkin("ENGORDA");
-				for(var ç = 0; ç < 1; ç++){
-					var inimigo = new InimigoObj(750,game.tiposDeInimigosSourceY[ç],50,50,game.posicoesIniciaisInimigosX[ç],game.posicoesIniciaisInimigosY[ç]);
+				for(let ç = 0; ç < 1; ç++){
+					let inimigo = new InimigoObj(750,game.tiposDeInimigosSourceY[ç],50,50,game.posicoesIniciaisInimigosX[ç],game.posicoesIniciaisInimigosY[ç]);
 					game.sprites.push(inimigo);
 					game.inimigos.push(inimigo);
 				}
@@ -353,8 +364,8 @@ function funcaoGame(){
 		}
 	}
 	removeInvisibleObjects = (objetos, sprites) => {
-		for(var espec in objetos){
-			var objetoEspecifico = objetos[espec];
+		for(let espec in objetos){
+			let objetoEspecifico = objetos[espec];
 			if(objetoEspecifico.status === "INVISIBLE"){
 				removeObjects(objetoEspecifico, objetos);
 				removeObjects(objetoEspecifico, sprites);
@@ -363,12 +374,12 @@ function funcaoGame(){
 		}
 	}
 	clearObjectsModePause = () => {
-		for(var sce in game.players[0].scenePause){
+		for(let sce in game.players[0].scenePause){
 			removeObjects(game.players[0].scenePause[sce], game.players[0].sprites);
 			removeObjects(game.players[0].scenePause[sce], game.players[0].scenePause);
 			sce--;
 		}
-		for(var ali in game.players[0].alimentosPaused){
+		for(let ali in game.players[0].alimentosPaused){
 			removeObjects(game.players[0].alimentosPaused[ali], game.players[0].sprites);
 			removeObjects(game.players[0].alimentosPaused[ali], game.players[0].alimentosPaused);
 			ali--;
@@ -378,9 +389,12 @@ function funcaoGame(){
 		alimento.vx = veloX * -1;
 		alimento.x = positX;
 	}
+	setAnimationWin = () => {
+
+	}
 	setAnimationPaused = () => {
-		for(var obj in game.players[0].alimentosPaused){
-			var alimento = game.players[0].alimentosPaused[obj];
+		for(let obj in game.players[0].alimentosPaused){
+			let alimento = game.players[0].alimentosPaused[obj];
 			alimento.vy = 2;
 			const velocidadeX = alimento.vx;
 			const positionX = alimento.x;
@@ -390,24 +404,57 @@ function funcaoGame(){
 		}
 	}
 	setAnimationLose = () => {
-		game.players[0].contadorDeLose % 30 === 0 && game.players[0].sceneLose[0].sourceX < 4800 ? setSourceX(game.players[0].sceneLose[0], game.players[0].sceneLose[0].sourceX + 500 ) : game.players[0].contadorDeLose *= 1;
+		game.players[0].contadorDeLose % 30 === 0 && game.players[0].sceneLose[0].sourceX < 4200 ? setSourceX(game.players[0].sceneLose[0], game.players[0].sceneLose[0].sourceX + 500 ) : game.players[0].contadorDeLose *= 1;
+	}
+	createSceneWin = () => {
+		
+		let vencedor = segundo = terceiro = maiorPontuador = game.players[0];
+		let classification = [];
+		let cont = posicaoJDoMaior = 0;
+		for(let player in game.players){
+			classification.push(game.players[player]);
+			game.players[player].indiceReal = player;
+		}
+		for(let i = 0; i < classification.length - 1; i++){//última posição não precisa ser considerada;
+			cont = 0;
+			for(let j = i; j < classification.length - 1; j++){
+				cont++;
+				if(cont === 1){
+					maiorPontuador = classification[j];
+					posicaoJDoMaior = j;
+				}
+				else{
+					if(classification[j].points > maiorPontuador.points){
+						maiorPontuador = classification[j];
+						posicaoJDoMaior = j;
+					}
+				}
+			}
+			classification[posicaoJDoMaior] = classification[i];
+			classification[i] = maiorPontuador;
+		}
+		for(let play in classification){
+			classification[play].indiceReal === game.players[0].indiceReal ? positionClassificationUser = play : positionClassificationUser *= 1;
+		}
+		let backgroundWin = new Sprite(4806,162,500,550,0,0);
+		game.sprites.push(backgroundWin);
 	}
 	createSceneLose = () => {
-		var backgroundLose = new Sprite(2306,163,500,550,0,0);
+		let backgroundLose = new Sprite(2306,163,500,550,0,0);
 		game.players[0].sprites.push(backgroundLose);
 		game.players[0].sceneLose.push(backgroundLose);
 	}
 	createScenePause = (pause) => {
-		var backgroundPause;
+		let backgroundPause;
 		pause ? backgroundPause = new Sprite(1803,161,500, 550, 0, 0) : backgroundPause = new Sprite(1000,161,500, 550, 0, 0);
 		game.players[0].sprites.push(backgroundPause);
 		game.players[0].scenePause.push(backgroundPause);
-		for(var alimento = 0; alimento < 6; alimento++){
-			var alimentoEspec = new Sprite(game.players[0].alimentosPausedX[alimento],0,50,55,game.players[0].alimentosPausedPositionX[alimento], game.players[0].alimentosPausedPositionY[alimento]);
+		for(let alimento = 0; alimento < 6; alimento++){
+			let alimentoEspec = new Sprite(game.players[0].alimentosPausedX[alimento],0,50,55,game.players[0].alimentosPausedPositionX[alimento], game.players[0].alimentosPausedPositionY[alimento]);
 			game.players[0].sprites.push(alimentoEspec);
 			game.players[0].alimentosPaused.push(alimentoEspec);
 		}
-		var playButton = new Sprite(1500,161,300,116,Math.trunc((cnv.width) / 2) - Math.trunc( (300 / 2) ), Math.trunc((cnv.height) / 2) - Math.trunc( (116 / 2) )  );
+		let playButton = new Sprite(1500,161,300,116,Math.trunc((cnv.width) / 2) - Math.trunc( (300 / 2) ), Math.trunc((cnv.height) / 2) - Math.trunc( (116 / 2) )  );
 		game.players[0].sprites.push(playButton);
 		game.players[0].scenePause.push(playButton);
 	}
@@ -417,7 +464,7 @@ function funcaoGame(){
 		//define as ações com base no estado do jogo
 		switch(game.gameState){
 			case game.LOADING:
-				console.log('LOADING...');
+				
 				break;
 			case game.PLAYING:
 				update();
@@ -438,7 +485,11 @@ function funcaoGame(){
 				
 			},
 			WIN : () => {
+				game.players[0].status = "INVISIBLE";
+				//removeInvisibleObjects(game.sprites, game.players);
 				game.gameState = game.OVER;
+				game.players[0].contadorDeWin += 1;
+				game.players[0].contadorDeWin === 1 ? createSceneWin() : updateWin();
 			},
 			LOSE : () => {
 				game.players[0].status = "INVISIBLE";
@@ -456,55 +507,63 @@ function funcaoGame(){
 		playerGameState[`${game.players[0].gameState}`]();
 		render();
 	}
-	
+	const moviments = {
+		mvRight : () => {
+			game.players[0].x += 5;
+			colliding["collideAllScene"](game.players[0]);
+			if(game.players[0].collideTrueOrFalseAllScene === false){
+				game.players[0].vx = 5;
+				game.players[0].vy = 0;
+			}
+			game.players[0].x -= 5;
+		},
+		mvLeft : () => {
+			game.players[0].x -= 5;
+			colliding["collideAllScene"](game.players[0]);
+			
+			if(game.players[0].collideTrueOrFalseAllScene === false){
+				game.players[0].vx = -5;
+				game.players[0].vy = 0;
+			}
+			
+			game.players[0].x += 5;
+		},
+		mvDown : () => {
+			game.players[0].y += 5;
+			colliding["collideAllScene"](game.players[0]);
+			if(game.players[0].collideTrueOrFalseAllScene === false){
+				game.players[0].vx = 0;
+				game.players[0].vy = 5;
+			}
+			game.players[0].y -= 5;
+		},
+		mvTop : () => {
+			game.players[0].y -= 5;
+			colliding["collideAllScene"](game.players[0]);
+			if(game.players[0].collideTrueOrFalseAllScene === false){
+				game.players[0].vx = 0;
+				game.players[0].vy = -5;
+			}
+			game.players[0].y += 5;
+		},
+		pause : () => {
+			if(game.gameState !== game.OVER){
+				game.players[0].keyPressed = "mvNone";
+				game.gameState !== game.PLAYING ? game.gameState = game.PLAYING : 
+				game.gameState = game.PAUSED;
+				game.players[0].gameState !== "PLAYING" ? game.players[0].gameState = "PLAYING" : 
+				game.players[0].gameState = "PAUSED";
+			}
+		},
+		mvNone : () => {
+			console.log("waiting pressed key...");
+		} 
+	}
 	function update(){
+		console.log("teste " + game.players[0].gameState);
 		//Regras do jogo camada de decisões
 		//move para a esquerda
-		const moviments = {
-			mvRight : () => {
-				game.players[0].x += 5;
-				colliding["collideAllScene"](game.players[0]);
-				if(game.players[0].collideTrueOrFalseAllScene === false){
-					game.players[0].vx = 5;
-					game.players[0].vy = 0;
-				}
-				game.players[0].x -= 5;
-			},
-			mvLeft : () => {
-				game.players[0].x -= 5;
-				colliding["collideAllScene"](game.players[0]);
-				
-				if(game.players[0].collideTrueOrFalseAllScene === false){
-					game.players[0].vx = -5;
-					game.players[0].vy = 0;
-				}
-				
-				game.players[0].x += 5;
-			},
-			mvDown : () => {
-				game.players[0].y += 5;
-				colliding["collideAllScene"](game.players[0]);
-				if(game.players[0].collideTrueOrFalseAllScene === false){
-					game.players[0].vx = 0;
-					game.players[0].vy = 5;
-				}
-				game.players[0].y -= 5;
-			},
-			mvTop : () => {
-				game.players[0].y -= 5;
-				colliding["collideAllScene"](game.players[0]);
-				if(game.players[0].collideTrueOrFalseAllScene === false){
-					game.players[0].vx = 0;
-					game.players[0].vy = -5;
-				}
-				game.players[0].y += 5;
-			},
-			mvNone : () => {
-				console.log("waiting pressed key...");
-			}
-		}
-		const move = moviments[`${game.players[0].keyPressed}`];
-		move();
+		moviments[`${game.players[0].keyPressed}`]();
 		//atualiza a posição
 		/*move = char.x;
 		char.x = Math.max(0,Math.min(cnv.width - char.width, char.x + char.vx));
@@ -516,8 +575,8 @@ function funcaoGame(){
 		
 		//for para perceber se houve choque entre o inimigo e os muros
 		
-		for(var z in game.inimigos){
-			var inimigoType1 = game.inimigos[z];
+		for(let z in game.inimigos){
+			let inimigoType1 = game.inimigos[z];
 			inimigoType1.colisoes = 0;
 			collideWall(inimigoType1);
 			!inimigoType1.collideTrueOrFalse ? setMove(inimigoType1) : inimigoType1.colisoes *= 1;
@@ -543,21 +602,22 @@ function funcaoGame(){
 		
 	}//fim do update
 	function updatePause() {
+		moviments[`${game.players[0].keyPressed}`]();
 		setAnimationPaused();
 	}
 	function updateLose(){
 		setAnimationLose();
 	}
 	function updateWin(){
-
+		setAnimationWin();
 	}
 	
 	function render(){
 		ctx.clearRect(0,0,cnv.width,cnv.height);
 		//itens gerais para todos os players
 		if(game.sprites.length !== 0){
-			for(const i in game.sprites){
-				const spr = game.sprites[i];
+			for(let i in game.sprites){
+				let spr = game.sprites[i];
 				if(spr.status === "VISIBLE"){
 					ctx.drawImage(img,spr.sourceX,spr.sourceY,spr.width,spr.height,Math.floor(spr.x),Math.floor(spr.y),spr.width,spr.height);
 				}
@@ -565,8 +625,8 @@ function funcaoGame(){
 		}
 		//itens específicos de cada player
 		if(game.players[0].sprites.length !== 0){
-			for(const gameSprite in game.players[0].sprites){
-				const sprEspecifico = game.players[0].sprites[gameSprite];
+			for(let gameSprite in game.players[0].sprites){
+				let sprEspecifico = game.players[0].sprites[gameSprite];
 				if(sprEspecifico.status === "VISIBLE"){
 					ctx.drawImage(img,sprEspecifico.sourceX,sprEspecifico.sourceY,sprEspecifico.width,sprEspecifico.height,Math.floor(sprEspecifico.x),Math.floor(sprEspecifico.y),sprEspecifico.width,sprEspecifico.height);
 				}
