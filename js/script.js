@@ -11,58 +11,78 @@ function funcaoGame(){
 	}
 	const createGame = initGame["createGame"];
 	const game = createGame();
+	//construtora de texto 
+	const constructorOfText = (props) => {
+        let { game, y, text, color, x, font, end } = props;
+        let textWhileUserPlaying = new ObjectMessage({
+            y : y,
+            text : text,
+            color : color,
+            x : x,
+            font : font,
+            end : end
+        });
+        game.messages.push(textWhileUserPlaying);
+    }
 	//canvas
 	let cnv = document.querySelector('canvas');
 	//contexto de renderização 2d
 	let ctx = cnv.getContext('2d');
-	//fundo -----------------------------------
-	let background = new Sprite(0, 162,500, 550, 0, 0);
-	game.sprites.push(background);
-	
-	for(let x = 0; x < 20; x++){
-		for(let y = 0; y < 20; y++){
-			switch(Scene.mapa[x][y]){
-				case 3:
-					if((Math.floor(Math.random()*10)) > 7){
-						let fruta = new Sprite(84, 131, 25,25,Scene.muro[x][y], x*25);
-						game.sprites.push(fruta);
-						game.frutas.push(fruta);
-					}
-					break;
-				case 1:
-					let paredeSprite = new SpriteDynamic(500,112,25,50,25*y,Scene.parede[x][y]);
-					game.sprites.push(paredeSprite);
-					game.cenario.push(paredeSprite);
-					break;
-				case 2:
-					let muroSprite = new SpriteDynamic(450,137,50,25,Scene.muro[x][y], 25*x);
-					game.sprites.push(muroSprite);
-					game.cenario.push(muroSprite);
-					break;
+	const createScenePlaying  = () => {
+		//fundo -----------------------------------
+		let background = new Sprite(0, 162,500, 550, 0, 0);
+		game.sprites.push(background);
+		
+		for(let x = 0; x < 20; x++){
+			for(let y = 0; y < 20; y++){
+				switch(Scene.mapa[x][y]){
+					case 3:
+						if((Math.floor(Math.random()*10)) > 7){
+							let fruta = new Sprite(84, 131, 25,25,Scene.muro[x][y], x*25);
+							game.sprites.push(fruta);
+							game.frutas.push(fruta);
+						}
+						break;
+					case 1:
+						let paredeSprite = new SpriteDynamic(500,112,25,50,25*y,Scene.parede[x][y]);
+						game.sprites.push(paredeSprite);
+						game.cenario.push(paredeSprite);
+						break;
+					case 2:
+						let muroSprite = new SpriteDynamic(450,137,50,25,Scene.muro[x][y], 25*x);
+						game.sprites.push(muroSprite);
+						game.cenario.push(muroSprite);
+						break;
+				}
 			}
 		}
+		//personagem---------------------------------
+		let char = new Sprite(500,162,50,50,180,425);
+		game.sprites.push(char);
+		game.players.push(char);
+		//score
+		constructorOfText({
+			game : game,
+			y : 540,
+			x : 350,
+			color : "#ff5556fc",
+			text : `SCORE : ${game.players[0].points}`,
+			font : "normal bold 30px sweet",
+			end : false
+		});
+		//inimigos-----------------------------------
+		for(let ç = 0; ç < 3; ç++){ 
+			let inimigo = new InimigoObj(750,game.tiposDeInimigosSourceY[ç],50,50,game.posicoesIniciaisInimigosX[ç],game.posicoesIniciaisInimigosY[ç]);
+			game.sprites.push(inimigo);
+			game.inimigos.push(inimigo);
+		}
+		for(let indice = 0; indice < 7; indice++){
+			let lifeIcon = new LifeIcons(112, 111, 50, 50, game.players[0].lifePositionX[indice], 500);
+			game.players[0].lifeIcons.push(lifeIcon);
+			game.players[0].sprites.push(lifeIcon);
+		}
 	}
-	
-
-	//personagem---------------------------------
-    let char = new Sprite(500,162,50,50,180,425);
-	game.sprites.push(char);
-	game.players.push(char);
-	//inimigos-----------------------------------
-	for(let ç = 0; ç < 3; ç++){ 
-		let inimigo = new InimigoObj(750,game.tiposDeInimigosSourceY[ç],50,50,game.posicoesIniciaisInimigosX[ç],game.posicoesIniciaisInimigosY[ç]);
-		game.sprites.push(inimigo);
-		game.inimigos.push(inimigo);
-	}
-	for(let indice = 0; indice < 7; indice++){
-		let lifeIcon = new LifeIcons(112, 111, 50, 50, game.players[0].lifePositionX[indice], 500);
-		game.players[0].lifeIcons.push(lifeIcon);
-		game.players[0].sprites.push(lifeIcon);
-	}
-	
-	
-	
-    
+	createScenePlaying();
 	
 	//imagem-------------------------------------
 	var img = new Image();
@@ -76,22 +96,21 @@ function funcaoGame(){
 	},false);
 	
 	window.addEventListener('keyup', (e) => {
-		var key = e.keyCode;
-		console.log(key);
+		var key = e.key;
 			switch(key){
-				case game.acceptKeys["LEFT"]:
+				case "ArrowLeft":
 					game.players[0].keyPressed = "mvLeft";
 					break;
-				case game.acceptKeys["RIGHT"]:
+				case "ArrowRight":
 					game.players[0].keyPressed = "mvRight";
 					break;
-				case game.acceptKeys["DOWN"]:
+				case "ArrowDown":
 					game.players[0].keyPressed = "mvDown";
 					break;
-				case game.acceptKeys["TOP"]:
+				case "ArrowUp":
 					game.players[0].keyPressed = "mvTop";
 					break;
-				case game.acceptKeys["ENTER"]:
+				case "Enter":
 					game.players[0].keyPressed = "pause";
 					break;
 				default : 
@@ -316,7 +335,7 @@ function funcaoGame(){
 	}
 	const functionsGameWin = {
 		setPointsInScreen : () => {
-			
+			game.messages[0].text = `SCORE : ${game.players[0].points}`;
 		},
 		gameWin : () => {
 			functionsGameWin["setPointsInScreen"]();
@@ -356,7 +375,8 @@ function funcaoGame(){
 				game.inimigos[ini].status = "INVISIBLE";
 				changeSkin("ENGORDA");
 				for(let ç = 0; ç < 1; ç++){
-					let inimigo = new InimigoObj(750,game.tiposDeInimigosSourceY[ç],50,50,game.posicoesIniciaisInimigosX[ç],game.posicoesIniciaisInimigosY[ç]);
+					let i = getRandomInt(0, 4);
+					let inimigo = new InimigoObj(750,game.tiposDeInimigosSourceY[ç],50,50,game.posicoesIniciaisAleatoriasInimigosX[i],game.posicoesIniciaisAleatoriasInimigosY[i]);
 					game.sprites.push(inimigo);
 					game.inimigos.push(inimigo);
 				}
@@ -407,37 +427,25 @@ function funcaoGame(){
 		game.players[0].contadorDeLose % 30 === 0 && game.players[0].sceneLose[0].sourceX < 4200 ? setSourceX(game.players[0].sceneLose[0], game.players[0].sceneLose[0].sourceX + 500 ) : game.players[0].contadorDeLose *= 1;
 	}
 	createSceneWin = () => {
+		for(let i in game.cenario){
+			game.cenario[i].status = "INVISIBLE";
+		}
+		for(let i in game.frutas){
+			game.frutas[i].status = "INVISIBLE";
+		}
+		for(let i in game.inimigos){
+			game.inimigos[i].status = "INVISIBLE";
+		}
+		constructorOfText({
+			game : game,
+			y : 310,
+			x : 50,
+			color : "#ac0",
+			text : `Você Venceu!!!`,
+			font : "normal bold 30px pressStart",
+			end : false
+		});
 		
-		let vencedor = segundo = terceiro = maiorPontuador = game.players[0];
-		let classification = [];
-		let cont = posicaoJDoMaior = 0;
-		for(let player in game.players){
-			classification.push(game.players[player]);
-			game.players[player].indiceReal = player;
-		}
-		for(let i = 0; i < classification.length - 1; i++){//última posição não precisa ser considerada;
-			cont = 0;
-			for(let j = i; j < classification.length - 1; j++){
-				cont++;
-				if(cont === 1){
-					maiorPontuador = classification[j];
-					posicaoJDoMaior = j;
-				}
-				else{
-					if(classification[j].points > maiorPontuador.points){
-						maiorPontuador = classification[j];
-						posicaoJDoMaior = j;
-					}
-				}
-			}
-			classification[posicaoJDoMaior] = classification[i];
-			classification[i] = maiorPontuador;
-		}
-		for(let play in classification){
-			classification[play].indiceReal === game.players[0].indiceReal ? positionClassificationUser = play : positionClassificationUser *= 1;
-		}
-		let backgroundWin = new Sprite(4806,162,500,550,0,0);
-		game.sprites.push(backgroundWin);
 	}
 	createSceneLose = () => {
 		let backgroundLose = new Sprite(2306,163,500,550,0,0);
@@ -477,15 +485,18 @@ function funcaoGame(){
 		const playerGameState = {
 			PAUSED : () => {
 				game.players[0].contadorDePausa += 1;
+				game.messages[0].status = "INVISIBLE";
 				game.players[0].contadorDePausa === 1 ? createScenePause(true) : updatePause();
 			},
 			PLAYING : () => {
 				//update();
+				game.messages[0].status = "VISIBLE";
 				game.players[0].contadorDePausa = 0;
 				
 			},
 			WIN : () => {
 				game.players[0].status = "INVISIBLE";
+				game.messages[0].status = "INVISIBLE";
 				//removeInvisibleObjects(game.sprites, game.players);
 				game.gameState = game.OVER;
 				game.players[0].contadorDeWin += 1;
@@ -493,15 +504,17 @@ function funcaoGame(){
 			},
 			LOSE : () => {
 				game.players[0].status = "INVISIBLE";
+				game.messages[0].status = "INVISIBLE";
 				//removeInvisibleObjects(game.sprites, game.players);
 				game.gameState = game.OVER;
 				game.players[0].contadorDeLose += 1;
 				game.players[0].contadorDeLose === 1 ? createSceneLose() : updateLose();
 			},
 			INIT : () => {
+				game.players[0].points = 0;
+				game.messages[0].status = "INVISIBLE";
 				game.players[0].contadorDePausa += 1;
 				game.players[0].contadorDePausa === 1 ? createScenePause(false) : updatePause();
-				
 			}
 		}
 		playerGameState[`${game.players[0].gameState}`]();
@@ -557,10 +570,9 @@ function funcaoGame(){
 		},
 		mvNone : () => {
 			console.log("waiting pressed key...");
-		} 
+		},
 	}
 	function update(){
-		console.log("teste " + game.players[0].gameState);
 		//Regras do jogo camada de decisões
 		//move para a esquerda
 		moviments[`${game.players[0].keyPressed}`]();
@@ -632,6 +644,23 @@ function funcaoGame(){
 				}
 			}
 		}
+
+		//show the text objects that are on game state now
+		if(game.messages.length !== 0){
+			for(let k in game.messages){
+				let text = game.messages[k];
+				if(text.status === "VISIBLE"){
+					ctx.font = text.font;
+					ctx.fillStyle = text.color;
+					ctx.textBaseLine = text.baseline;
+					ctx.fillText(text.text, text.x, text.y);
+					if(text.end){
+						text.x = (canvas.width - ctx.measureText(text.text).width)/2;
+					}
+				}
+			}
+		}
+	
 	}
 	loop();
 }());

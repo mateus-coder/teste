@@ -108,24 +108,32 @@ const Game = function () {
 	this.tiposDeInimigosSourceY = [212,       312,      362 ];
 	this.posicoesIniciaisInimigosY = [350,    200,      425];
 	this.posicoesIniciaisInimigosX = [280,    280,      30];
+	this.posicoesIniciaisAleatoriasInimigosX = [280, 310, 25, 470];
+	this.posicoesIniciaisAleatoriasInimigosY = [350, 380, 25, 25]
 	this.frutas = [];
 	this.inimigos = [];
 	this.cenario = [];
+	this.messages = [];
 	//estado do jogo finalizado ? 
 	this.end = false;
 	//contador de recursos
 	this.loadedAssets = 0;
-	this.acceptKeys = {
-		LEFT : 37,
-		RIGHT : 39,
-		ENTER : 13,
-		TOP : 38,
-		DOWN : 40,
-	};
 	this.contadorDeTempo = 60;
 	this.delayMudancaDeCor = 0;
 }
 
 Game.prototype.start = function () {
 	
+}
+
+function ObjectMessage (props){
+    let { y, color, text, x, font, end } = props;
+    this.x = x;
+    this.y = y;
+    this.text = text;
+    this.status = "VISIBLE";
+    this.font = font;
+    this.color = color;
+    this.baseline = "top";
+    this.end = end;
 }
